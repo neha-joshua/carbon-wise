@@ -6,6 +6,8 @@ The supplied `projects_real_starter.csv` is copied byte-for-byte to `data/raw/pr
 
 On 2026-10-25, all 23 IDs were cross-referenced to the official GCC *Climate Budget Report 2025-26*. The source PDF is available from the [official GCC site](https://www.chennaicorporation.gov.in/gcc/pdf/ClimateBudget2025-2026.pdf); it is retained in the local project but not stored in this GitHub repository. Page-level evidence and scope notes are in `data/evidence/gcc_climate_budget_evidence.csv` and `docs/gcc_climate_budget_evidence.md`. The report confirms these data are published by GCC; it does not make every status independently audited or every estimate a measured outcome.
 
+The evidence room separately includes 25 CMRL tender and consultancy awards from CMRL's [official awarded-tenders listing](https://chennaimetrorail.org/awarded-tenders/). These are procurement records with published references, titles, award dates, contractors, and values. They are not a count of 25 completed projects, and they do not establish payments, actual expenditure, GHG savings, or equity outcomes. See `data/evidence/cmrl_awarded_tenders.csv` and `docs/cmrl_award_evidence.md`.
+
 ## Meaning of statuses
 
 - `reported_estimate`: the starter labels the cost as estimated and the GCC report calls it an overall project/programme cost; this is not an awarded value or actual expenditure.

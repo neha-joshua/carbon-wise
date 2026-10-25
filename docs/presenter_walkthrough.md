@@ -31,6 +31,8 @@ Filter the 23 rows by department. Each record links the supplied starter ID and 
 
 #### Drainage awards
 
+The separate **CMRL award records** tab adds 25 tender and consultancy award records published by Chennai Metro Rail Limited. Treat each row as procurement evidence, not as a separate completed project. The listing provides award information but does not establish payment, completion, measured carbon reduction, or equity outcomes. The methodology and field definitions are in `docs/cmrl_award_evidence.md`.
+
 This table brings together three GCC tender references, official tender notice IDs, ADB award dates, contractors and USD award amounts. Tender estimate, actual expenditure, physical quantities and completion remain unknown in the available records. The ADB-financed share and total contract value are separate fields. Neither is converted into a GCC payment.
 
 #### Calculation audit

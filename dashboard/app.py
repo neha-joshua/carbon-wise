@@ -41,15 +41,16 @@ def load_evidence_data():
     projects = pd.read_csv(PROJECT_ROOT / "data/raw/projects_real_starter.csv")
     tenders = pd.read_csv(PROJECT_ROOT / "data/tenders/chennai_drainage_tender_packages.csv")
     evidence = pd.read_csv(PROJECT_ROOT / "data/evidence/gcc_climate_budget_evidence.csv", keep_default_na=False)
+    cmrl_awards = pd.read_csv(PROJECT_ROOT / "data/evidence/cmrl_awarded_tenders.csv", keep_default_na=False)
     checks = pd.read_csv(PROJECT_ROOT / "results/evidence/gcc_report_calculation_checks.csv", keep_default_na=False)
     snapshots = sorted((PROJECT_ROOT / "data/derived").glob("*/validation_issues.csv"))
     issues_path = snapshots[-1] if snapshots else None
     issues = pd.read_csv(issues_path) if issues_path else pd.DataFrame()
-    return projects, tenders, issues, evidence, checks
+    return projects, tenders, issues, evidence, checks, cmrl_awards
 
 
 def render_evidence_room():
-    projects, tenders, issues, evidence, checks = load_evidence_data()
+    projects, tenders, issues, evidence, checks, cmrl_awards = load_evidence_data()
     st.markdown("""
     <style>
       .stApp { background: #f4f6f2; }
@@ -108,7 +109,7 @@ def render_evidence_room():
 
     st.markdown('<div class="status-band"><b>Evidence is now connected to the project ledger.</b> Every starter row is cross-referenced to its numbered GCC Climate Budget action and printed report page. Published quantities, project status and GHG calculations are shown with their scope. The scenario optimizer remains separate because these records do not share one validated carbon, resilience and geographic basis.</div>', unsafe_allow_html=True)
 
-    tab_overview, tab_projects, tab_tenders, tab_checks, tab_method, tab_guide = st.tabs(["Overview", "GCC project evidence", "Drainage awards", "Calculation audit", "Causal evidence & methods", "Presenter guide"])
+    tab_overview, tab_projects, tab_tenders, tab_cmrl, tab_checks, tab_method, tab_guide = st.tabs(["Overview", "GCC project evidence", "Drainage awards", "CMRL award records", "Calculation audit", "Causal evidence & methods", "Presenter guide"])
     with tab_overview:
         st.markdown('<div class="section-kicker">01 / What the evidence can support</div><div class="section-heading">A useful dataset starts with honest boundaries.</div>', unsafe_allow_html=True)
         left, right = st.columns([1.05, .95], gap="large")
@@ -174,6 +175,15 @@ def render_evidence_room():
         st.link_button("Open ADB award table ↗", tenders.iloc[0]["award_source_url"], use_container_width=False)
         st.download_button("Download tender evidence table (CSV)", tenders.to_csv(index=False).encode("utf-8"), "carbonwise_drainage_award_evidence.csv", "text/csv")
 
+    with tab_cmrl:
+        st.markdown('<div class="section-kicker">CHENNAI METRO RAIL LIMITED / PRIMARY-SOURCE PROCUREMENT</div><div class="section-heading">Award records beyond the GCC starter list</div>', unsafe_allow_html=True)
+        st.caption(f"{len(cmrl_awards)} tender and consultancy award records from CMRL's official awarded-tenders listing. Each row is a procurement record, not a separately validated completed project. Contract awards are not actual expenditure; the source does not establish completion, measured GHG reductions, or population-level equity outcomes.")
+        cmrl_view = cmrl_awards[["evidence_id", "tender_reference", "work_title", "department_or_agency", "location_as_published", "record_type", "tender_notice_date_as_published", "award_date_as_published", "contractor", "awarded_value_as_published", "tax_basis_as_published", "award_status", "climate_relevance", "equity_relevance", "completion_status", "actual_expenditure", "primary_source_url", "interpretation_note"]].copy()
+        cmrl_view = cmrl_view.rename(columns={"evidence_id":"Evidence ID", "tender_reference":"Tender reference", "work_title":"Work title (summary)", "department_or_agency":"Agency", "location_as_published":"Location as published", "record_type":"Record type", "tender_notice_date_as_published":"Notice date (source format)", "award_date_as_published":"Award date (source format)", "contractor":"Awarded contractor", "awarded_value_as_published":"Award value (source text)", "tax_basis_as_published":"Tax basis (source text)", "award_status":"Source status", "climate_relevance":"Climate evidence", "equity_relevance":"Equity evidence", "completion_status":"Completion evidence", "actual_expenditure":"Actual expenditure", "primary_source_url":"Official source", "interpretation_note":"Scope note"})
+        st.dataframe(cmrl_view, use_container_width=True, hide_index=True, height=560, column_config={"Official source": st.column_config.LinkColumn()})
+        st.link_button("Open CMRL's official awarded-tenders listing ↗", "https://chennaimetrorail.org/awarded-tenders/", use_container_width=False)
+        st.download_button("Download CMRL award evidence (CSV)", cmrl_awards.to_csv(index=False).encode("utf-8"), "carbonwise_cmrl_award_evidence.csv", "text/csv")
+
     with tab_checks:
         st.markdown('<div class="section-kicker">REPRODUCIBILITY / FIVE PUBLISHED FORMULAS</div><div class="section-heading">Can we reproduce the arithmetic?</div>', unsafe_allow_html=True)
         st.markdown("The checks below rerun the arithmetic printed by GCC for five annual GHG estimates. A matching number confirms the arithmetic from the report inputs; it does **not** confirm that the vehicles travelled those distances, lights were installed and operated as assumed, or that these reductions were measured in the field.")
@@ -191,6 +201,7 @@ def render_evidence_room():
         | GCC primary report | Climate Budget action IDs, costs, status, quantities, progress, pages | Confirmed as published by GCC; not independently audited |
         | Derived arithmetic | Five GHG estimate checks and 5 km / 11.6 km progress ratio | Formula and inputs exposed; real-world activity assumptions remain unverified |
         | Official award listing | Three matching ADB award entries | Contract values in USD; not expenditure |
+        | CMRL official award listing | 25 tender and consultancy award records with source IDs, titles, dates, contractors and published value strings | Procurement records only; no completion, expenditure or measured climate/equity outcomes in the listing |
         | Unknown | Actual spend, tender physical quantities, live completion, exact locations | Displayed as unknown |
         | Optimisation inputs | No compatible validated resilience and geographic crosswalk for all records | Real-project ranking is withheld; evidence analysis still runs on source-backed data |
 

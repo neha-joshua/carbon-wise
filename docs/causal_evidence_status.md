@@ -11,6 +11,7 @@ Primary sources:
 - [ADB project status, implementation, and evaluation-document listing](https://www.adb.org/projects/49107-009/main)
 - [ADB 2021 Report and Recommendation of the President](https://www.adb.org/projects/documents/ind-49107-009-rrp)
 - [GCC Climate Budget Report 2025–26](https://www.chennaicorporation.gov.in/gcc/pdf/ClimateBudget2025-2026.pdf)
+- [CMRL awarded tenders](https://chennaimetrorail.org/awarded-tenders/) (procurement evidence; not completion or impact verification)
 
 ## What the website evidence does establish
 

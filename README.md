@@ -4,6 +4,8 @@
 Chennai pilot implementation for BCSE497J Project-I, Review 2.
 
 > **Data status (2026-10-25):** the app opens on an evidence room using the supplied GCC starter CSV, cross-referenced against 23 actions in the official GCC Climate Budget Report 2025-26, plus three distinct drainage tender notices matched to ADB award records. The project evidence register includes report page references, published costs/status/quantities and caveats; five published GHG calculations are arithmetically reproduced with assumptions labeled. GCC-reported progress and estimates are not independent audits or observed emissions. Actual expenditure for tenders remains unknown. The optimizer is available separately as a synthetic scenario lab using 56 generated benchmark candidates and the 15-zone table. No verified causal impact estimate is available in the current evidence pack; the dashboard now says so directly and identifies the data/design needed for one. See `docs/causal_evidence_status.md` and `docs/presenter_walkthrough.md`, plus `docs/gcc_climate_budget_evidence.md`, `docs/data_provenance.md`, and `docs/drainage_tender_methodology.md`.
+>
+> The evidence room also contains 25 tender and consultancy award records from CMRL's official awarded-tenders listing (`data/evidence/cmrl_awarded_tenders.csv`). These broaden procurement evidence beyond the GCC starter rows; they are not a count of completed projects and do not establish payment, GHG reductions, or equity outcomes. See `docs/cmrl_award_evidence.md`.
 
 ## Share the website
 
