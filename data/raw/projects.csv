@@ -1,0 +1,57 @@
+project_id,project_name,category,zone_id,zone_name,cost_lakhs_inr,carbon_reduction_tco2_per_year,resilience_benefit_raw,population_benefited
+P001,Solar Rooftop (public building) - Manali,Solar Rooftop (public building),Z2,Manali,34.7,80.8,23.9,903
+P002,Building Retrofit (LED+insulation) - Alandur,Building Retrofit (LED+insulation),Z12,Alandur,39.3,49.3,39.7,976
+P003,Stormwater Drainage Upgrade - Adyar,Stormwater Drainage Upgrade,Z13,Adyar,316.9,9.4,88.0,33391
+P004,Urban Tree Canopy / Green Corridor - Ambattur,Urban Tree Canopy / Green Corridor,Z7,Ambattur,20.0,16.8,51.6,3602
+P005,Public Transit Electrification (bus) - Adyar,Public Transit Electrification (bus),Z13,Adyar,868.5,332.3,50.6,144436
+P006,Flood Barrier / Embankment - Adyar,Flood Barrier / Embankment,Z13,Adyar,735.9,4.1,79.7,31882
+P007,Cool Roof / Reflective Pavement - Anna Nagar,Cool Roof / Reflective Pavement,Z8,Anna Nagar,7.3,15.2,43.6,6839
+P008,EV Charging Hub (public/transit) - Thiruvottiyur,EV Charging Hub (public/transit),Z1,Thiruvottiyur,42.8,31.7,24.4,8888
+P009,Solar Rooftop (public building) - Ambattur,Solar Rooftop (public building),Z7,Ambattur,36.4,39.7,23.4,1822
+P010,Building Retrofit (LED+insulation) - Manali,Building Retrofit (LED+insulation),Z2,Manali,35.0,46.5,27.8,4191
+P011,Stormwater Drainage Upgrade - Ambattur,Stormwater Drainage Upgrade,Z7,Ambattur,324.4,4.3,89.1,11315
+P012,Urban Tree Canopy / Green Corridor - Adyar,Urban Tree Canopy / Green Corridor,Z13,Adyar,13.4,10.2,58.6,13799
+P013,Public Transit Electrification (bus) - Anna Nagar,Public Transit Electrification (bus),Z8,Anna Nagar,1002.7,248.5,57.1,33592
+P014,Flood Barrier / Embankment - Valasaravakkam,Flood Barrier / Embankment,Z11,Valasaravakkam,268.7,3.7,86.3,41879
+P015,Cool Roof / Reflective Pavement - Manali,Cool Roof / Reflective Pavement,Z2,Manali,14.5,13.3,39.0,3840
+P016,EV Charging Hub (public/transit) - Alandur,EV Charging Hub (public/transit),Z12,Alandur,22.2,34.2,19.3,12347
+P017,Solar Rooftop (public building) - Sholinganallur,Solar Rooftop (public building),Z15,Sholinganallur,25.5,28.8,15.6,1389
+P018,Building Retrofit (LED+insulation) - Adyar,Building Retrofit (LED+insulation),Z13,Adyar,29.9,40.1,39.6,2791
+P019,Stormwater Drainage Upgrade - Ambattur,Stormwater Drainage Upgrade,Z7,Ambattur,516.3,3.3,70.6,9325
+P020,Urban Tree Canopy / Green Corridor - Ambattur,Urban Tree Canopy / Green Corridor,Z7,Ambattur,27.5,23.9,39.8,12605
+P021,Public Transit Electrification (bus) - Sholinganallur,Public Transit Electrification (bus),Z15,Sholinganallur,926.7,244.9,51.4,66655
+P022,Flood Barrier / Embankment - Madhavaram,Flood Barrier / Embankment,Z3,Madhavaram,578.2,2.4,77.1,16850
+P023,Cool Roof / Reflective Pavement - Thiru-Vi-Ka-Nagar,Cool Roof / Reflective Pavement,Z6,Thiru-Vi-Ka-Nagar,18.6,15.5,31.6,9138
+P024,EV Charging Hub (public/transit) - Sholinganallur,EV Charging Hub (public/transit),Z15,Sholinganallur,74.5,44.5,24.0,10121
+P025,Solar Rooftop (public building) - Manali,Solar Rooftop (public building),Z2,Manali,55.6,54.6,14.0,1553
+P026,Building Retrofit (LED+insulation) - Manali,Building Retrofit (LED+insulation),Z2,Manali,27.4,23.0,41.4,3874
+P027,Stormwater Drainage Upgrade - Anna Nagar,Stormwater Drainage Upgrade,Z8,Anna Nagar,344.4,7.0,86.4,24415
+P028,Urban Tree Canopy / Green Corridor - Valasaravakkam,Urban Tree Canopy / Green Corridor,Z11,Valasaravakkam,10.3,22.5,36.2,12198
+P029,Public Transit Electrification (bus) - Madhavaram,Public Transit Electrification (bus),Z3,Madhavaram,430.1,149.0,57.6,50275
+P030,Flood Barrier / Embankment - Royapuram,Flood Barrier / Embankment,Z5,Royapuram,755.1,3.3,83.3,46395
+P031,Cool Roof / Reflective Pavement - Royapuram,Cool Roof / Reflective Pavement,Z5,Royapuram,19.4,12.2,44.6,1891
+P032,EV Charging Hub (public/transit) - Thiruvottiyur,EV Charging Hub (public/transit),Z1,Thiruvottiyur,54.1,36.2,33.8,19316
+P033,Solar Rooftop (public building) - Teynampet,Solar Rooftop (public building),Z9,Teynampet,27.0,46.6,20.4,1453
+P034,Building Retrofit (LED+insulation) - Anna Nagar,Building Retrofit (LED+insulation),Z8,Anna Nagar,10.6,52.2,42.4,871
+P035,Stormwater Drainage Upgrade - Royapuram,Stormwater Drainage Upgrade,Z5,Royapuram,198.9,7.4,77.9,33639
+P036,Urban Tree Canopy / Green Corridor - Teynampet,Urban Tree Canopy / Green Corridor,Z9,Teynampet,27.6,33.1,38.2,16824
+P037,Public Transit Electrification (bus) - Sholinganallur,Public Transit Electrification (bus),Z15,Sholinganallur,333.7,275.4,51.1,143984
+P038,Flood Barrier / Embankment - Tondiarpet,Flood Barrier / Embankment,Z4,Tondiarpet,685.0,2.3,97.9,27984
+P039,Cool Roof / Reflective Pavement - Kodambakkam,Cool Roof / Reflective Pavement,Z10,Kodambakkam,8.8,19.0,29.1,1235
+P040,EV Charging Hub (public/transit) - Anna Nagar,EV Charging Hub (public/transit),Z8,Anna Nagar,50.5,54.7,32.8,17133
+P041,Solar Rooftop (public building) - Adyar,Solar Rooftop (public building),Z13,Adyar,55.2,58.7,16.3,2400
+P042,Building Retrofit (LED+insulation) - Perungudi,Building Retrofit (LED+insulation),Z14,Perungudi,29.8,31.8,22.4,3450
+P043,Stormwater Drainage Upgrade - Thiru-Vi-Ka-Nagar,Stormwater Drainage Upgrade,Z6,Thiru-Vi-Ka-Nagar,571.6,3.9,73.4,40020
+P044,Urban Tree Canopy / Green Corridor - Tondiarpet,Urban Tree Canopy / Green Corridor,Z4,Tondiarpet,12.1,15.4,53.0,21467
+P045,Public Transit Electrification (bus) - Thiruvottiyur,Public Transit Electrification (bus),Z1,Thiruvottiyur,579.3,337.7,69.2,105519
+P046,Flood Barrier / Embankment - Madhavaram,Flood Barrier / Embankment,Z3,Madhavaram,286.3,1.1,80.5,17706
+P047,Cool Roof / Reflective Pavement - Thiruvottiyur,Cool Roof / Reflective Pavement,Z1,Thiruvottiyur,6.8,12.6,42.4,6284
+P048,EV Charging Hub (public/transit) - Valasaravakkam,EV Charging Hub (public/transit),Z11,Valasaravakkam,34.0,47.8,29.3,21568
+P049,Solar Rooftop (public building) - Adyar,Solar Rooftop (public building),Z13,Adyar,20.6,85.3,18.0,1237
+P050,Building Retrofit (LED+insulation) - Manali,Building Retrofit (LED+insulation),Z2,Manali,24.7,44.8,43.9,1845
+P051,Stormwater Drainage Upgrade - Sholinganallur,Stormwater Drainage Upgrade,Z15,Sholinganallur,161.2,6.4,87.8,9803
+P052,Urban Tree Canopy / Green Corridor - Perungudi,Urban Tree Canopy / Green Corridor,Z14,Perungudi,11.8,22.6,64.0,14103
+P053,Public Transit Electrification (bus) - Madhavaram,Public Transit Electrification (bus),Z3,Madhavaram,1023.9,250.9,63.5,26603
+P054,Flood Barrier / Embankment - Perungudi,Flood Barrier / Embankment,Z14,Perungudi,265.5,4.3,94.1,22267
+P055,Cool Roof / Reflective Pavement - Thiru-Vi-Ka-Nagar,Cool Roof / Reflective Pavement,Z6,Thiru-Vi-Ka-Nagar,14.1,18.0,40.1,4564
+P056,EV Charging Hub (public/transit) - Anna Nagar,EV Charging Hub (public/transit),Z8,Anna Nagar,46.2,33.8,28.0,19434

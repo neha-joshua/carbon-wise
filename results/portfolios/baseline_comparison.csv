@@ -1,0 +1,4 @@
+method,n_projects,total_cost_cr,carbon_score,resilience_score,equity_score
+Equal Split,40,26.4,454.8,1232.5,1684.9
+Greedy Cost-Effectiveness,43,48.0,751.8,1339.5,1866.5
+CarbonWise (NSGA-II),45,49.8,672.3,1628.6,2012.7

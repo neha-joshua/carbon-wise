@@ -1,0 +1,17 @@
+{
+  "dataset_version": "synthetic-projects-seed42-zone-table-unverified-v1",
+  "projects_sha256": "20114fd81c7861e4870e5955d3867ed14cb318e4b019f20c29157a92ec60de6a",
+  "zones_sha256": "aca1ca2a94c2f8be5e5b1a29d526b3a6719b3acf2b9019e12c2b080aa7066487",
+  "budget_cr": 50.0,
+  "solver": "pymoo.NSGA2",
+  "pop_size": 100,
+  "n_gen": 150,
+  "seed_list": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "interpretation": "All portfolios are modelled on generated benchmark projects. Per-resident inequality describes investment allocation intensity, not observed benefits or outcomes."
+}

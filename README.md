@@ -177,8 +177,8 @@ The default landing view is an evidence-first workspace using
 `data/raw/projects_real_starter.csv` and
 `data/tenders/chennai_drainage_tender_packages.csv`. The GCC starter is
 cross-referenced to its official Climate Budget item and printed pages using
-`data/evidence/gcc_climate_budget_evidence.csv`; the original report PDF is
-included under `data/source_docs/`. The page shows source-backed project status,
+`data/evidence/gcc_climate_budget_evidence.csv`; the original report is linked
+from the official GCC site (the PDF is not stored in this GitHub repository). The page shows source-backed project status,
 physical quantities, five reproducible arithmetic checks, three award-linked
 drainage packages, missing evidence, and official source links. It does not
 present GCC-reported estimates as measured outcomes.

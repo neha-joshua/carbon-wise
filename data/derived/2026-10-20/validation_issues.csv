@@ -1,0 +1,25 @@
+record_id,severity,code,message
+R01,error,carbon_outlier_unresolved,41 lakh tCO2e/year estimate has inconsistent waste quantities/scopes in source notes; excluded pending reconciliation
+R03,warning,unknown_carbon,Carbon impact is not quantified in starter record
+R04,warning,programme_not_package,Programme aggregate must not be treated as an individual funded project
+R04,warning,programme_cost_not_package_cost,"₹5,553.3 crore is reported for 236 packages across schemes; not an individual tender cost"
+R04,warning,unknown_carbon,Carbon impact is not quantified in starter record
+R05,warning,programme_not_package,Programme aggregate must not be treated as an individual funded project
+R05,warning,unknown_carbon,Carbon impact is not quantified in starter record
+R06,warning,unknown_carbon,Carbon impact is not quantified in starter record
+R07,warning,unknown_carbon,Carbon impact is not quantified in starter record
+R08,warning,unknown_carbon,Carbon impact is not quantified in starter record
+R09,warning,unknown_carbon,Carbon impact is not quantified in starter record
+R10,warning,unknown_carbon,Carbon impact is not quantified in starter record
+R11,warning,unknown_carbon,Carbon impact is not quantified in starter record
+R12,warning,unknown_carbon,Carbon impact is not quantified in starter record
+R13,error,quantity_period_mismatch,"₹8.19 crore cost covers 8,083 fittings (2023-25), while 250.34 tCO2e/year estimate is stated for 1,610 proposed lights in 2025-26"
+R14,warning,unknown_carbon,Carbon impact is not quantified in starter record
+R15,warning,unknown_carbon,Carbon impact is not quantified in starter record
+R16,warning,fuel_type_check,Keep as CNG vehicles; do not recode as EVs. Estimated avoided emissions need validation
+R17,warning,fuel_type_check,Keep as CNG vehicles; do not recode as EVs. Estimated avoided emissions need validation
+R18,warning,fuel_type_check,Keep as CNG vehicles; do not recode as EVs. Estimated avoided emissions need validation
+R19,warning,unknown_carbon,Carbon impact is not quantified in starter record
+R20,warning,unknown_carbon,Carbon impact is not quantified in starter record
+R22,warning,unknown_carbon,Carbon impact is not quantified in starter record
+R23,warning,unknown_carbon,Carbon impact is not quantified in starter record

@@ -1,0 +1,18 @@
+{
+  "dataset_version": "gcc-starter-derived-2026-10-24-v2",
+  "generated_on": "2026-10-24",
+  "source_file": "data/raw/projects_real_starter.csv",
+  "source_row_count": 23,
+  "cleaned_row_count": 23,
+  "programme_row_count": 2,
+  "model_ready_row_count": 0,
+  "excluded_row_count": 23,
+  "tender_lead_count": 3,
+  "tenders_with_official_ids": 3,
+  "tender_estimated_value_records": 0,
+  "tender_award_value_records": 3,
+  "tender_actual_expenditure_records": 0,
+  "warning_count": 22,
+  "error_count": 2,
+  "status": "lead_data_only; model ingestion blocked pending missing fields and scope verification"
+}
