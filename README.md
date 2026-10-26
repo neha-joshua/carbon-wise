@@ -54,3 +54,14 @@ tests/                 Automated checks
 ```
 
 See [the implementation audit](docs/implementation_audit.md) and [data provenance notes](docs/data_provenance.md) before making claims about real-world impact.
+
+## Multi-city catalogue research (experimental)
+
+CarbonWise now includes an OpenCity CKAN discovery workflow and an in-app **Multi-city data coverage** view. Search metadata is a discovery lead, not verified city coverage. See [the collection guide](docs/multicity_collection.md) and the [computed collection report](reports/multicity_collection_report.md).
+
+Refresh metadata from the repository root with `python src/multicity_catalog.py`. Use `--download --max-resources N` only for a bounded download run. Rebuild reports without network access with `python src/multicity_catalog.py --report-only`.
+# Multi-city catalogue research (experimental)
+
+CarbonWise now includes an auditable OpenCity CKAN discovery workflow and an in-app **Multi-city data coverage** view. Search metadata is treated as a discovery lead: it does not prove that a dataset spatially covers a city or has been quality checked. The research boundary, commands, output files and licensing limitations are documented in [docs/multicity_collection.md](docs/multicity_collection.md). The latest computed collection results are in [reports/multicity_collection_report.md](reports/multicity_collection_report.md).
+
+Refresh metadata from the repository root with `python src/multicity_catalog.py`. To download a small, reviewed subset, pass one or more `--city CITY_ID` flags plus `--download --max-resources N`. Do not use search hit counts as evidence of data coverage.

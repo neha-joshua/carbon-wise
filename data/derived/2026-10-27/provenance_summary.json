@@ -1,0 +1,19 @@
+{
+  "dataset_version": "gcc-starter-derived-2026-10-27-v3",
+  "generated_on": "2026-10-27",
+  "source_file": "data/raw/projects_real_starter.csv",
+  "source_row_count": 23,
+  "cleaned_row_count": 23,
+  "rows_cross_referenced_to_official_gcc_climate_budget": 23,
+  "programme_row_count": 2,
+  "model_ready_row_count": 0,
+  "excluded_row_count": 23,
+  "tender_lead_count": 3,
+  "tenders_with_official_ids": 3,
+  "tender_estimated_value_records": 0,
+  "tender_award_value_records": 3,
+  "tender_actual_expenditure_records": 0,
+  "warning_count": 24,
+  "error_count": 0,
+  "status": "source_evidence_enriched; GCC-reported facts/progress available; model ingestion still requires compatible validated cost, impact, resilience, and geographic inputs"
+}

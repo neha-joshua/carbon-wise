@@ -344,7 +344,7 @@ def render_evidence_room():
 st.set_page_config(page_title="CarbonWise", layout="wide",
                     initial_sidebar_state="expanded", page_icon="◆")
 
-APP_OPTIONS = ["Start here", "Analyze my data", "Try a sample plan", "Explore official evidence"]
+APP_OPTIONS = ["Start here", "Analyze my data", "Try a sample plan", "Explore official evidence", "Multi-city data coverage"]
 if "cw_app_mode" not in st.session_state:
     st.session_state["cw_app_mode"] = APP_OPTIONS[0]
 
@@ -382,6 +382,8 @@ def render_start_page():
     with c3:
         st.markdown('<div class="cw-choice"><h3>See official records</h3><p>Review GCC report statements and procurement records, with sources and important unknowns shown.</p></div>', unsafe_allow_html=True)
         st.button("Explore official evidence", use_container_width=True, on_click=_go_to_page, args=("Explore official evidence",))
+    st.button("Explore multi-city data coverage", on_click=_go_to_page, args=("Multi-city data coverage",))
+    st.caption("The multi-city catalogue page shows discovered source metadata and downloaded-file checks. It does not yet provide comparable climate indicators or real multi-city investment rankings.")
     st.link_button("Read the beginner's guide ↗", "https://github.com/neha-joshua/carbon-wise/blob/main/docs/presenter_walkthrough.md")
     st.caption("Estimates, published statements, sample values, and user-provided data are labelled separately. CarbonWise does not treat a model result as a confirmed real-world outcome.")
 
@@ -399,6 +401,63 @@ if app_mode == "Explore official evidence":
     st.stop()
 if app_mode == "Analyze my data":
     render_user_data_studio()
+    st.stop()
+if app_mode == "Multi-city data coverage":
+    st.markdown("## Multi-city data coverage")
+    st.caption("Catalogue discovery results are leads. A dataset is not counted as validated city coverage until its geography, dates, licence and quality have been reviewed.")
+    summary_path = PROJECT_ROOT / "data/metadata/collection_summary.json"
+    inventory_path = PROJECT_ROOT / "data/metadata/dataset_inventory.csv"
+    if not inventory_path.exists():
+        inventory_path = PROJECT_ROOT / "data/metadata/dataset_inventory.csv.gz"
+    if not summary_path.exists():
+        st.info("No multi-city catalogue run has been recorded yet. From the repository root, run `python src/multicity_catalog.py` to refresh public OpenCity catalogue metadata.")
+    else:
+        with summary_path.open(encoding="utf-8") as f:
+            coverage = json.load(f)
+        m1, m2, m3, m4 = st.columns(4)
+        m1.metric("Cities searched", coverage.get("city_count_targeted", 0))
+        m2.metric("Cities with catalogue results", coverage.get("cities_with_catalogue_items", 0))
+        m3.metric("Catalogue records", coverage.get("catalogue_records_retained", 0))
+        m4.metric("Verified optimizer candidates", coverage.get("model_ready_candidates", 0))
+        m5, m6, m7 = st.columns(3)
+        m5.metric("Files downloaded", coverage.get("successful_downloads", 0))
+        m6.metric("Rows across downloaded CSVs", coverage.get("raw_data_rows_in_downloaded_csvs", 0))
+        m7.metric("Geographic features inventoried", coverage.get("geographic_features_collected", 0))
+        st.info(coverage.get("model_ready_explanation", "No model eligibility assessment recorded."))
+        city_rows = coverage.get("city_coverage", [])
+        if city_rows:
+            frame = pd.DataFrame(city_rows)
+            st.dataframe(frame, use_container_width=True, hide_index=True)
+            fig = px.bar(frame, x="city", y="discovered_resources_or_packages", color="coverage_status",
+                         title="Catalogue entries found by search query (not validated spatial coverage)",
+                         labels={"discovered_resources_or_packages":"Catalogue entries", "city":"Target city"})
+            st.plotly_chart(fig, use_container_width=True)
+        if inventory_path.exists():
+            inventory = pd.read_csv(inventory_path, compression="infer").fillna("")
+            if not inventory.empty:
+                city_options = ["All cities"] + sorted(inventory["city_query"].dropna().astype(str).unique().tolist())
+                selected_city = st.selectbox("Filter catalogue by city", city_options)
+                terms = st.text_input("Filter dataset titles, publishers, or formats")
+                if selected_city != "All cities":
+                    inventory = inventory[inventory["city_query"].astype(str) == selected_city]
+                if terms:
+                    mask = inventory.astype(str).apply(lambda col: col.str.contains(terms, case=False, regex=False)).any(axis=1)
+                    inventory = inventory[mask]
+                st.dataframe(inventory[[c for c in ["city_query","title","publisher","format","licence","discovery_status","download_status","validation_status","dataset_page","resource_url"] if c in inventory]], use_container_width=True, hide_index=True)
+                inventory_download = inventory.drop(columns=["local_path"], errors="ignore")
+                st.download_button("Download filtered catalogue CSV", inventory_download.to_csv(index=False).encode("utf-8"), "carbonwise_catalogue_inventory.csv", "text/csv")
+        quality_path = PROJECT_ROOT / "data/metadata/resource_validation_report.csv"
+        if quality_path.exists():
+            quality = pd.read_csv(quality_path).fillna("")
+            if not quality.empty:
+                st.markdown("### Downloaded files: checks and row counts")
+                st.caption("These checks were recorded by the local collector. Original downloads and derived geometry are not bundled with this public app; counts remain an audit snapshot. Different datasets are not pooled because their schemas and meanings differ.")
+                quality_view = quality[[c for c in ["city_query","title","format","raw_data_rows","geo_feature_count","missing_cells","duplicate_rows","integrity_check","quality_status"] if c in quality]]
+                st.dataframe(quality_view, use_container_width=True, hide_index=True)
+                st.download_button("Download file quality report", quality_view.to_csv(index=False).encode("utf-8"), "carbonwise_resource_quality.csv", "text/csv")
+        st.markdown("### How to read this page")
+        st.markdown("- **Catalogue result** means a public search returned metadata matching the city name. It does not prove the resource covers the city.\n- **Successful download** means bytes were retrieved and hashed; it does not establish correctness or reuse rights.\n- **Validated download** means only that a basic file-format check passed. Research suitability still requires review.\n- The city-level optimizer remains empty until comparable project costs, outcomes, geography and source evidence meet documented eligibility rules.")
+        st.caption("Latest inventory generation (UTC): " + str(coverage.get("generated_at_utc", "unknown")))
     st.stop()
 
 INK = "#1A2B22"

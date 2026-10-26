@@ -1,0 +1,13 @@
+{
+  "catalogues": [
+    {"source_id":"opencity_ckan","organisation":"OpenCity","kind":"ckan","base_url":"https://data.opencity.in/api/3/action","licence_note":"Read each dataset's licence individually; unknown licences remain flagged."},
+    {"source_id":"data_gov_in","organisation":"Open Government Data Platform India","kind":"manual_catalogue","base_url":"https://www.data.gov.in/","licence_note":"Dataset-specific terms and API key requirements must be checked."},
+    {"source_id":"smartcities_data","organisation":"Smart Cities Mission","kind":"manual_catalogue","base_url":"https://smartcities.data.gov.in/cities","licence_note":"Portal reachability and dataset reuse terms require per-resource verification."},
+    {"source_id":"imd_climate_services","organisation":"India Meteorological Department","kind":"documented_service","base_url":"https://mausam.imd.gov.in/responsive/climate_services.php","licence_note":"Historical supply may require application or payment; do not infer open access."},
+    {"source_id":"census_india","organisation":"Census of India","kind":"manual_catalogue","base_url":"https://censusindia.gov.in/census.website/en/data","licence_note":"Keep each table's actual reference year and terms."},
+    {"source_id":"cea","organisation":"Central Electricity Authority","kind":"manual_catalogue","base_url":"https://cea.nic.in/","licence_note":"Record factor type and reporting year before analytical use."},
+    {"source_id":"openstreetmap","organisation":"OpenStreetMap contributors","kind":"documented_service","base_url":"https://www.openstreetmap.org/","licence_note":"ODbL attribution and share-alike obligations apply; query services have usage limits."},
+    {"source_id":"nasa_earthdata","organisation":"NASA Earthdata","kind":"manual_catalogue","base_url":"https://earthdata.nasa.gov/","licence_note":"Product-specific terms, resolution and access/authentication requirements apply."},
+    {"source_id":"copernicus","organisation":"Copernicus Data Space Ecosystem","kind":"manual_catalogue","base_url":"https://dataspace.copernicus.eu/","licence_note":"Product-specific access and terms apply; no imagery is inferred from catalogue presence."}
+  ]
+}
