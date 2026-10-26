@@ -1,0 +1,114 @@
+{
+  "generated_at_utc": "2026-10-26T20:22:41Z",
+  "city_count_targeted": 8,
+  "cities_with_catalogue_items": 8,
+  "catalogue_records_retained": 6122,
+  "resource_records_with_download_url": 6099,
+  "unique_dataset_packages": 764,
+  "successful_downloads": 14,
+  "failed_operations_in_this_run": 0,
+  "raw_bytes_downloaded_or_verified": 7897111,
+  "model_ready_candidates": 0,
+  "model_ready_explanation": "The discovered catalogue metadata has not been reviewed for comparable, location-linked cost and outcome evidence. No records promoted.",
+  "city_coverage": [
+    {
+      "city_id": "chennai",
+      "city": "Chennai",
+      "catalogue_resource_rows": 891,
+      "unique_dataset_packages": 110,
+      "successful_downloads": 9,
+      "usable_downloads": 3,
+      "verified_model_ready_records": 0,
+      "coverage_status": "city_name_in_dataset_identity; geography, time and licence require validation"
+    },
+    {
+      "city_id": "mumbai",
+      "city": "Mumbai",
+      "catalogue_resource_rows": 571,
+      "unique_dataset_packages": 55,
+      "successful_downloads": 1,
+      "usable_downloads": 1,
+      "verified_model_ready_records": 0,
+      "coverage_status": "city_name_in_dataset_identity; geography, time and licence require validation"
+    },
+    {
+      "city_id": "bengaluru",
+      "city": "Bengaluru",
+      "catalogue_resource_rows": 3298,
+      "unique_dataset_packages": 415,
+      "successful_downloads": 0,
+      "usable_downloads": 0,
+      "verified_model_ready_records": 0,
+      "coverage_status": "city_name_in_dataset_identity; geography, time and licence require validation"
+    },
+    {
+      "city_id": "delhi",
+      "city": "Delhi",
+      "catalogue_resource_rows": 444,
+      "unique_dataset_packages": 48,
+      "successful_downloads": 1,
+      "usable_downloads": 1,
+      "verified_model_ready_records": 0,
+      "coverage_status": "city_name_in_dataset_identity; geography, time and licence require validation"
+    },
+    {
+      "city_id": "hyderabad",
+      "city": "Hyderabad",
+      "catalogue_resource_rows": 317,
+      "unique_dataset_packages": 48,
+      "successful_downloads": 0,
+      "usable_downloads": 0,
+      "verified_model_ready_records": 0,
+      "coverage_status": "city_name_in_dataset_identity; geography, time and licence require validation"
+    },
+    {
+      "city_id": "kolkata",
+      "city": "Kolkata",
+      "catalogue_resource_rows": 249,
+      "unique_dataset_packages": 28,
+      "successful_downloads": 1,
+      "usable_downloads": 1,
+      "verified_model_ready_records": 0,
+      "coverage_status": "city_name_in_dataset_identity; geography, time and licence require validation"
+    },
+    {
+      "city_id": "pune",
+      "city": "Pune",
+      "catalogue_resource_rows": 294,
+      "unique_dataset_packages": 56,
+      "successful_downloads": 1,
+      "usable_downloads": 1,
+      "verified_model_ready_records": 0,
+      "coverage_status": "city_name_in_dataset_identity; geography, time and licence require validation"
+    },
+    {
+      "city_id": "ahmedabad",
+      "city": "Ahmedabad",
+      "catalogue_resource_rows": 58,
+      "unique_dataset_packages": 4,
+      "successful_downloads": 1,
+      "usable_downloads": 1,
+      "verified_model_ready_records": 0,
+      "coverage_status": "city_name_in_dataset_identity; geography, time and licence require validation"
+    }
+  ],
+  "warnings": [
+    "Catalogue search hits are leads, not verified city coverage.",
+    "OpenCity city query does not guarantee geographic containment.",
+    "Licence, date range, data quality and relevance require per-resource review.",
+    "Other catalogues remain configured discovery leads until a documented, permitted integration is run."
+  ],
+  "cities_refreshed_this_run": [],
+  "downloaded_resources_audited": 14,
+  "raw_data_rows_in_downloaded_csvs": 1001,
+  "missing_csv_cells": 776,
+  "duplicate_csv_rows": 0,
+  "downloaded_climate_time_series_rows": 0,
+  "geographic_features_collected": 4772,
+  "files_not_attempted": 6106,
+  "failed_download_records_retained": 2,
+  "source_catalogues_configured": 9,
+  "source_catalogues_actually_queried": 1,
+  "cities_with_successfully_downloaded_files": 6,
+  "city_project_or_procurement_records_extracted": 0
+}

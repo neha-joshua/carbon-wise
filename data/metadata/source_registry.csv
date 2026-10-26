@@ -1,0 +1,18 @@
+source_id,organisation,source_url,integration_kind,access_or_licence_note,verification_status
+opencity_ckan,OpenCity,https://data.opencity.in/api/3/action,ckan,Read each dataset's licence individually; unknown licences remain flagged.,public_catalogue_api_queried; individual_resource_terms_require_review
+data_gov_in,Open Government Data Platform India,https://www.data.gov.in/,manual_catalogue,Dataset-specific terms and API key requirements must be checked.,configured_lead_not_yet_verified
+smartcities_data,Smart Cities Mission,https://smartcities.data.gov.in/cities,manual_catalogue,Portal reachability and dataset reuse terms require per-resource verification.,configured_lead_not_yet_verified
+imd_climate_services,India Meteorological Department,https://mausam.imd.gov.in/responsive/climate_services.php,documented_service,Historical supply may require application or payment; do not infer open access.,configured_lead_not_yet_verified
+census_india,Census of India,https://censusindia.gov.in/census.website/en/data,manual_catalogue,Keep each table's actual reference year and terms.,configured_lead_not_yet_verified
+cea,Central Electricity Authority,https://cea.nic.in/,manual_catalogue,Record factor type and reporting year before analytical use.,configured_lead_not_yet_verified
+openstreetmap,OpenStreetMap contributors,https://www.openstreetmap.org/,documented_service,ODbL attribution and share-alike obligations apply; query services have usage limits.,configured_lead_not_yet_verified
+nasa_earthdata,NASA Earthdata,https://earthdata.nasa.gov/,manual_catalogue,"Product-specific terms, resolution and access/authentication requirements apply.",configured_lead_not_yet_verified
+copernicus,Copernicus Data Space Ecosystem,https://dataspace.copernicus.eu/,manual_catalogue,Product-specific access and terms apply; no imagery is inferred from catalogue presence.,configured_lead_not_yet_verified
+municipal_chennai,Chennai,https://chennaicorporation.gov.in/,official_municipal_homepage,Relevant datasets and reuse terms must be identified on a per-resource basis.,official_homepage_configured_not_dataset_verified
+municipal_mumbai,Mumbai,https://www.mcgm.gov.in/,official_municipal_homepage,Relevant datasets and reuse terms must be identified on a per-resource basis.,official_homepage_configured_not_dataset_verified
+municipal_bengaluru,Bengaluru,https://site.bbmp.gov.in/,official_municipal_homepage,Relevant datasets and reuse terms must be identified on a per-resource basis.,official_homepage_configured_not_dataset_verified
+municipal_delhi,Delhi,https://mcdonline.nic.in/,official_municipal_homepage,Relevant datasets and reuse terms must be identified on a per-resource basis.,official_homepage_configured_not_dataset_verified
+municipal_hyderabad,Hyderabad,https://www.ghmc.gov.in/,official_municipal_homepage,Relevant datasets and reuse terms must be identified on a per-resource basis.,official_homepage_configured_not_dataset_verified
+municipal_kolkata,Kolkata,https://www.kmcgov.in/,official_municipal_homepage,Relevant datasets and reuse terms must be identified on a per-resource basis.,official_homepage_configured_not_dataset_verified
+municipal_pune,Pune,https://www.pmc.gov.in/,official_municipal_homepage,Relevant datasets and reuse terms must be identified on a per-resource basis.,official_homepage_configured_not_dataset_verified
+municipal_ahmedabad,Ahmedabad,https://ahmedabadcity.gov.in/,official_municipal_homepage,Relevant datasets and reuse terms must be identified on a per-resource basis.,official_homepage_configured_not_dataset_verified

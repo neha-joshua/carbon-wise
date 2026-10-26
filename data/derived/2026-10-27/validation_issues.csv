@@ -1,0 +1,25 @@
+record_id,severity,code,message
+R01,warning,large_caveated_ghg_estimate,"GCC Climate Budget p.54 gives a 41,28,416 tCO2e FY2025-26 potential-reduction estimate and says exact savings require detailed on-ground investigation; do not present as measured savings"
+R03,warning,unknown_carbon,Carbon impact is not quantified in starter record
+R04,warning,programme_not_package,Programme aggregate must not be treated as an individual funded project
+R04,warning,programme_cost_not_package_cost,"₹5,553.3 crore is reported for 236 packages across schemes; not an individual tender cost"
+R04,warning,unknown_carbon,Carbon impact is not quantified in starter record
+R05,warning,programme_not_package,Programme aggregate must not be treated as an individual funded project
+R05,warning,unknown_carbon,Carbon impact is not quantified in starter record
+R06,warning,unknown_carbon,Carbon impact is not quantified in starter record
+R07,warning,unknown_carbon,Carbon impact is not quantified in starter record
+R08,warning,unknown_carbon,Carbon impact is not quantified in starter record
+R09,warning,unknown_carbon,Carbon impact is not quantified in starter record
+R10,warning,unknown_carbon,Carbon impact is not quantified in starter record
+R11,warning,unknown_carbon,Carbon impact is not quantified in starter record
+R12,warning,unknown_carbon,Carbon impact is not quantified in starter record
+R13,warning,cost_and_carbon_scope_differ,"GCC Climate Budget pp.46,60-61: ₹8.19 crore refers to 8,083 fittings in 2023-25; 250.34 tCO2e/year is calculated for 1,610 proposed FY2025-26 fittings. Keep both facts; do not calculate cost-effectiveness across scopes"
+R14,warning,unknown_carbon,Carbon impact is not quantified in starter record
+R15,warning,unknown_carbon,Carbon impact is not quantified in starter record
+R16,warning,fuel_type_check,Keep as CNG vehicles; do not recode as EVs. Estimated avoided emissions need validation
+R17,warning,fuel_type_check,Keep as CNG vehicles; do not recode as EVs. Estimated avoided emissions need validation
+R18,warning,fuel_type_check,Keep as CNG vehicles; do not recode as EVs. Estimated avoided emissions need validation
+R19,warning,unknown_carbon,Carbon impact is not quantified in starter record
+R20,warning,unknown_carbon,Carbon impact is not quantified in starter record
+R22,warning,unknown_carbon,Carbon impact is not quantified in starter record
+R23,warning,unknown_carbon,Carbon impact is not quantified in starter record

@@ -1,0 +1,12 @@
+{
+  "cities": [
+    {"city_id":"chennai","name":"Chennai","state":"Tamil Nadu","focus":["coastal flooding","heat","drainage"],"municipal_home":"https://chennaicorporation.gov.in/"},
+    {"city_id":"mumbai","name":"Mumbai","state":"Maharashtra","focus":["coastal flooding","heat","drainage"],"municipal_home":"https://www.mcgm.gov.in/"},
+    {"city_id":"bengaluru","name":"Bengaluru","state":"Karnataka","focus":["urban growth","lakes","water stress"],"municipal_home":"https://site.bbmp.gov.in/"},
+    {"city_id":"delhi","name":"Delhi","state":"Delhi","focus":["heat","air quality","flooding"],"municipal_home":"https://mcdonline.nic.in/"},
+    {"city_id":"hyderabad","name":"Hyderabad","state":"Telangana","focus":["heat","water","infrastructure"],"municipal_home":"https://www.ghmc.gov.in/"},
+    {"city_id":"kolkata","name":"Kolkata","state":"West Bengal","focus":["flooding","drainage","wetlands"],"municipal_home":"https://www.kmcgov.in/"},
+    {"city_id":"pune","name":"Pune","state":"Maharashtra","focus":["river corridors","urban growth","resilience"],"municipal_home":"https://www.pmc.gov.in/"},
+    {"city_id":"ahmedabad","name":"Ahmedabad","state":"Gujarat","focus":["extreme heat","climate investment"],"municipal_home":"https://ahmedabadcity.gov.in/"}
+  ]
+}
