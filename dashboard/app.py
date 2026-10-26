@@ -382,6 +382,7 @@ def render_start_page():
     with c3:
         st.markdown('<div class="cw-choice"><h3>See official records</h3><p>Review GCC report statements and procurement records, with sources and important unknowns shown.</p></div>', unsafe_allow_html=True)
         st.button("Explore official evidence", use_container_width=True, on_click=_go_to_page, args=("Explore official evidence",))
+    st.link_button("Read the beginner's guide ↗", "https://github.com/neha-joshua/carbon-wise/blob/main/docs/presenter_walkthrough.md")
     st.caption("Estimates, published statements, sample values, and user-provided data are labelled separately. CarbonWise does not treat a model result as a confirmed real-world outcome.")
 
 app_mode = st.sidebar.radio(
