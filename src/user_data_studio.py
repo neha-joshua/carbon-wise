@@ -176,8 +176,8 @@ def _make_audit_packet(audits):
 
 
 def _data_workspace(source):
-    st.markdown("### 1 · Upload and prepare data")
-    st.write("Upload a project file, match its columns to the planning fields, then review and correct the rows before comparing plans.")
+    st.markdown("### Upload your project file")
+    st.write("Use one project per row. Match the columns, review the values, then compare plans.")
     uploader, actions = st.columns([3, 1])
     with uploader:
         uploaded = st.file_uploader("Project data (.csv, .xlsx, .xlsm)", type=["csv", "xlsx", "xlsm"], key="cw_upload_file")
@@ -195,7 +195,7 @@ def _data_workspace(source):
             _load_source_into_state(demo, "SYNTHETIC DEMO — invented sample values", raw)
             st.session_state["cw_cost_unit"] = "crore INR (illustrative)"
             st.rerun()
-    if st.button("Clear active dataset", key="cw_clear_data"):
+    if source is not None and st.button("Clear active dataset", key="cw_clear_data"):
         if uploaded is not None:
             st.session_state["cw_ignored_upload_sha"] = sha256(uploaded.getvalue()).hexdigest()
         _reset_active_dataset()
@@ -221,7 +221,7 @@ def _data_workspace(source):
     if name.startswith("SYNTHETIC DEMO"):
         st.info("Practice data: every project row and impact value is invented for interface demonstration. Do not present it as Chennai project evidence.")
     else:
-        st.success(f"Active dataset: **{name}** · {len(source):,} rows · SHA-256 `{st.session_state.get('cw_source_sha256','')[:16]}…`")
+        st.success(f"Active dataset: **{name}** · {len(source):,} rows")
 
     st.markdown("#### Quick file check")
     p1, p2, p3 = st.columns(3)
@@ -231,8 +231,9 @@ def _data_workspace(source):
     profile = pd.DataFrame({"column": source.columns.astype(str), "data type": source.dtypes.astype(str).values,
                             "missing": source.isna().sum().values,
                             "distinct": source.nunique(dropna=True).values})
-    st.dataframe(profile, hide_index=True, use_container_width=True)
-    st.dataframe(source.head(12), hide_index=True, use_container_width=True)
+    with st.expander("Inspect columns and first rows"):
+        st.dataframe(profile, hide_index=True, use_container_width=True)
+        st.dataframe(source.head(12), hide_index=True, use_container_width=True)
 
     columns = list(source.columns)
     choices = ["(not mapped)"] + columns
@@ -295,12 +296,13 @@ def _data_workspace(source):
 
 
 def _visual_audit(source):
-    st.markdown("### Street View Insights")
-    st.write("A visual snapshot of the street you uploaded.")
+    st.markdown("### Add a street photo (optional)")
+    st.write("Upload a photo or take one. CarbonWise estimates colour coverage; it does not identify objects or verify project outcomes.")
     photo_source = st.radio("Choose photo source", ["Upload a photo", "Use camera"], horizontal=True, key="cw_photo_source")
-    shot = st.camera_input("Capture a street observation", key="cw_camera_capture")
-    uploaded = st.file_uploader("Or upload a street photo", type=["png", "jpg", "jpeg"], key="cw_audit_photo")
-    photo = uploaded if photo_source == "Upload a photo" else shot
+    if photo_source == "Use camera":
+        photo = st.camera_input("Take a street photo", key="cw_camera_capture")
+    else:
+        photo = st.file_uploader("Choose a PNG or JPEG photo", type=["png", "jpg", "jpeg"], key="cw_audit_photo")
     if photo is None:
         if photo_source == "Use camera":
             st.info("Allow camera access and capture a photo to continue. You can switch to **Upload a photo** if camera access is unavailable.")
@@ -413,7 +415,7 @@ def _visual_audit(source):
 
 
 def _run_optimizer(source):
-    st.markdown("### 3 · Compare investment plans")
+    st.markdown("### Compare investment plans")
     mapped = st.session_state.get("cw_working_data")
     if mapped is None:
         st.info("Prepare your file in **Upload and prepare data** first.")
@@ -432,23 +434,24 @@ def _run_optimizer(source):
         budget = st.number_input(f"Available budget ({st.session_state.get('cw_cost_unit','dataset cost units')})",
             min_value=0.01, max_value=max(max_budget, 0.01), value=max(0.01, max_budget * 0.5),
             step=max(0.01, max_budget / 20), format="%.4f")
-        st.markdown("**How should CarbonWise choose a balanced plan?**")
-        st.caption("The sliders set the relative importance of each goal when selecting one plan from the available trade-offs.")
+        st.markdown("**Choose what matters most**")
+        st.caption("These settings rank the plans your data supports. They do not change the values in your file.")
         c1, c2, c3 = st.columns(3)
         carbon_weight = c1.slider("Carbon benefit", 0.0, 1.0, 0.40, 0.05)
         resilience_weight = c2.slider("Resilience benefit", 0.0, 1.0, 0.30, 0.05)
         equity_weight = c3.slider("Community score", 0.0, 1.0, 0.30, 0.05)
-        require_equity = st.checkbox("Set a minimum average community score")
-        floor = st.slider("Minimum score (0–100 within this dataset)", 0, 100, 50, 1, disabled=not require_equity)
         audits = usable_audits
-        apply_audit = st.checkbox("Apply an explicit what-if resilience adjustment from a confirmed field audit",
-                                  disabled=not audits,
-                                  help="This is a user-entered scenario assumption. Image pixel analysis does not calculate it.")
-        selected_audit = None
-        adjustment = 0
-        if audits:
-            selected_audit = st.selectbox("Confirmed audit to use", range(len(audits)), format_func=lambda i: f"{audits[i]['observation']} · {audits[i]['zone_id']} · {audits[i]['saved_at_utc']}")
-            adjustment = st.slider("User-entered resilience benefit adjustment for matching zone (%)", 0, 50, 10, 1, disabled=not apply_audit)
+        with st.expander("Optional constraints and field-audit scenario"):
+            require_equity = st.checkbox("Set a minimum average community score")
+            floor = st.slider("Minimum score (0–100 within this dataset)", 0, 100, 50, 1, disabled=not require_equity)
+            apply_audit = st.checkbox("Apply a user-entered resilience adjustment from a confirmed field note",
+                                      disabled=not audits,
+                                      help="This scenario value is entered by you; image colours do not calculate it.")
+            selected_audit = None
+            adjustment = 0
+            if audits:
+                selected_audit = st.selectbox("Field note", range(len(audits)), format_func=lambda i: f"{audits[i]['observation']} · {audits[i]['zone_id']} · {audits[i]['saved_at_utc']}")
+                adjustment = st.slider("Resilience adjustment for matching area (%)", 0, 50, 10, 1, disabled=not apply_audit)
         submitted = st.form_submit_button("Generate investment plan", type="primary")
     if not submitted:
         st.caption(f"Active dataset: {st.session_state.get('cw_source_name')} · {len(df)} project rows · no plan is generated until you select the button.")
@@ -542,8 +545,8 @@ def _run_optimizer(source):
 
 
 def _digital_twin():
-    st.markdown("### 4 · Explore a what-if")
-    st.write("Compare how a changed budget, priority, or explicit assumption affects the plan for your active dataset. This is a decision scenario, not a sensor-connected model of Chennai.")
+    st.markdown("### Compare two runs")
+    st.write("See how the selected plan changes when you change the budget, priorities, or an explicit scenario assumption. This is not a live city model.")
     current = st.session_state.get("cw_latest_result")
     previous = st.session_state.get("cw_previous_result")
     if current is None:
@@ -621,10 +624,10 @@ def _digital_twin():
 
 
 def _evidence_explorer(source):
-    st.markdown("### 5 · Review data and downloads")
-    st.write("Inspect the active upload and all session-confirmed field audit notes. Official source registers remain in the separate Evidence Room.")
+    st.markdown("### Review and download")
+    st.write("Your upload and saved notes stay in this browser session. Download any run files you need to keep.")
     if source is not None:
-        st.success(f"Active input: {st.session_state.get('cw_source_name')} · hash `{st.session_state.get('cw_source_sha256','')}`")
+        st.success(f"Active input: {st.session_state.get('cw_source_name')}")
         st.dataframe(source, use_container_width=True, hide_index=True)
         st.download_button("Download original active dataset", source.to_csv(index=False).encode(), "carbonwise_active_input.csv", "text/csv")
     else:
@@ -642,10 +645,10 @@ def _evidence_explorer(source):
 
 
 def render():
-    st.title("Plan with your project data")
-    st.caption("Upload a file, review its planning fields, compare investment plans, and optionally attach a manually confirmed street observation.")
-    st.info("This workspace uses only the file shown below. Its practice CSV is invented example data. For sourced GCC and CMRL records, choose **Evidence Room · GCC records** in the sidebar.")
-    tabs = st.tabs(["Upload & prepare", "Street View Insights", "Compare plans", "What-if", "Review & download"])
+    st.title("Analyze your project data")
+    st.caption("Upload a file to compare possible project plans. Results use the values you provide and are not measured outcomes.")
+    st.info("Start with **Upload data**, map and review the required fields, then choose **Compare plans**. The sample file contains invented values. For published city records, choose **Explore official evidence** in the sidebar.")
+    tabs = st.tabs(["Upload data", "Street photo", "Compare plans", "Compare runs", "Downloads"])
     with tabs[0]:
         _data_workspace(st.session_state.get("cw_source_frame"))
     source = st.session_state.get("cw_source_frame")
