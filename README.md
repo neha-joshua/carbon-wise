@@ -303,3 +303,11 @@ Two further additions:
   Alternative Pareto Solutions, Zone-Level Breakdown, Full Project List) —
   from computed model outputs on the generated dataset, no LLM. Downloadable from the
   dashboard as a `.txt` file alongside the plain CSV export.
+
+## Live demo — bring your own project data
+
+Choose **Live Studio · your data** to upload CSV or XLSX/XLSM, inspect the source, map ID/cost/carbon/resilience/equity fields, and correct or remove rows before analysis. The optimizer uses the existing pymoo NSGA-II implementation on those mapped rows, enforces the entered budget and optional mean-equity floor, compares equal-split and carbon-efficiency baselines, and exports selected/excluded rows and the Pareto front. Cost and benefit units come from the uploaded file; CarbonWise does not convert them or fill missing values. Equity is min–max scaled to 0–100 within the current working dataset.
+
+The optional **Visual Street Audit** uses the webcam in a secure browser with camera permission or accepts a photo upload. It computes green-hued and low-saturation gray pixel shares with a lightweight HSV color threshold and asks a human to confirm an observation. It does not identify vegetation, roads, flooding or assets. Only a separately entered, explicit resilience scenario assumption can change matched-zone inputs. Photos, audit notes and optimization runs remain in the current session and downloadable packet; they are not committed to the repository.
+
+The included `data/demo/carbonwise_synthetic_demo.csv` is invented demonstration data, clearly labeled in the app. It is useful for rehearsing the whole click path, but must not be presented as actual Chennai project evidence. See `docs/live_data_studio.md` for the workflow and limits.

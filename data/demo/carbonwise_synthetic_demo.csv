@@ -1,0 +1,13 @@
+project_id,project_name,category,zone_id,cost_crore_inr,annual_carbon_benefit_tco2e,resilience_score_0_100,equity_score_0_100
+SYN-001,Roof cooling pilot,Building retrofit,Z1,1.8,120,38,72
+SYN-002,Drainage inlet upgrades,Drainage,Z3,3.1,15,94,81
+SYN-003,Solar water pump,Renewable energy,Z2,1.2,95,54,49
+SYN-004,Street tree infill,Green space,Z3,0.9,22,76,88
+SYN-005,Bus depot efficiency,Public transport,Z5,2.4,160,35,61
+SYN-006,Canal-side flood storage,Drainage,Z1,4.0,10,98,79
+SYN-007,Community solar canopy,Renewable energy,Z4,2.2,142,46,74
+SYN-008,School heat shelter,Building retrofit,Z5,1.1,34,82,91
+SYN-009,Bus stop shade network,Public transport,Z2,1.5,28,71,84
+SYN-010,Park rain gardens,Green space,Z4,1.7,19,89,77
+SYN-011,Streetlight LED conversion,Energy,Z2,0.7,72,20,55
+SYN-012,Permeable junction pilot,Drainage,Z5,1.3,8,79,86

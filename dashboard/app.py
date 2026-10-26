@@ -33,6 +33,7 @@ from llm import client as llm_client
 from llm.explain import generate_explanation
 from data_validation import validate as validate_data
 from decision_rationale import build_rationale
+from user_data_studio import render as render_user_data_studio
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
@@ -353,12 +354,15 @@ st.set_page_config(page_title="CarbonWise", layout="wide",
 
 app_mode = st.sidebar.radio(
     "WORKSPACE",
-    ["Evidence Room · GCC records", "Scenario Lab · synthetic model"],
+    ["Evidence Room · GCC records", "Live Studio · your data", "Scenario Lab · synthetic model"],
     index=0,
-    help="The evidence room is the default. The optimizer currently runs only on generated benchmark projects.",
+    help="Evidence Room shows official-source records. Live Studio maps CSV/Excel you provide into the NSGA-II optimizer and supports a user-confirmed photo audit. Scenario Lab uses generated benchmark projects.",
 )
 if app_mode == "Evidence Room · GCC records":
     render_evidence_room()
+    st.stop()
+if app_mode == "Live Studio · your data":
+    render_user_data_studio()
     st.stop()
 
 INK = "#1A2B22"
