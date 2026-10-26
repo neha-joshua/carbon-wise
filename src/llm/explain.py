@@ -1,32 +1,25 @@
 """
 llm/explain.py
 
-Generates a natural-language explanation of a recommended portfolio.
-
-DESIGN PRINCIPLE (the one that matters most): the LLM is given ONLY the
-already-computed, verified numbers from the optimizer -- never raw project
-data, never asked to invent or estimate anything. It explains evidence that
-already exists; it does not produce new numbers. If the LLM call fails for
-ANY reason (no API key, no internet, rate limit, timeout, malformed
-response), this silently and immediately falls back to the existing
-tested rule-based logic in agents.py. The caller (the dashboard) cannot
-tell which path was used except via the `source` field in the return value
--- which IS shown in the UI, for transparency, but the explanation quality
-degrades gracefully rather than the app breaking.
+Optional natural-language summary of scores from generated sample projects.
+It does not verify source data or real-world impacts. A failed LLM call uses
+a rule-based summary, and the UI labels that fallback.
 """
 from . import client as llm_client
 from agents import full_council_report
 
 
-SYSTEM_PROMPT = """You are an explanation layer for CarbonWise, a municipal \
-infrastructure investment decision-support tool. You will be given ONLY \
-verified, already-computed numbers from a multi-objective optimizer \
-(NSGA-II) and a rule-based comparison against baseline allocation methods.
+SYSTEM_PROMPT = """You explain outputs from CarbonWise's generated sample-project \
+planner. The provided values are model scores and comparisons from synthetic \
+examples; they are not independently verified or observed city outcomes.
 
 Your job is strictly to EXPLAIN this evidence in clear, professional \
 prose suitable for a city planner or budget committee. You must:
 - Use ONLY the numbers given to you. Never invent, estimate, or guess any \
   number not explicitly provided.
+- Call carbon, resilience, and community values relative model scores. Do not \
+  describe them as tonnes of emissions, flood protection, or delivered benefits.
+- Do not claim that a project caused an outcome or that residents received a benefit.
 - Never recommend a different portfolio than the one described -- your job \
   is to explain the given recommendation, not second-guess the optimizer.
 - Keep the explanation to 4-6 sentences, in a neutral, evidence-based tone.
@@ -36,19 +29,20 @@ prose suitable for a city planner or budget committee. You must:
 
 
 def _build_user_prompt(context: dict) -> str:
-    lines = ["Here is the verified data for the recommended portfolio:\n"]
+    lines = ["Here are the generated sample-model values for the selected plan:\n"]
     for key, val in context.items():
         lines.append(f"- {key}: {val}")
     lines.append(
-        "\nWrite a short, professional explanation of why this portfolio was "
-        "recommended, what trade-offs it makes relative to the baseline methods, "
-        "and what its main risk or limitation is."
+        "\nWrite a short explanation of why this plan was selected, what trade-offs "
+        "it makes compared with the listed methods, and one important limitation. "
+        "State that these are relative model scores from generated examples, not "
+        "measured real-world impacts."
     )
     return "\n".join(lines)
 
 
 def _rule_based_fallback(comparison, budget_cr: float) -> str:
-    """Reuses the existing tested agents.py logic -- our reliable fallback."""
+    """Build a rule-based fallback from the sample-model comparisons."""
     council = full_council_report(comparison, budget_cr)
     return " ".join(entry["statement"] for entry in council)
 
