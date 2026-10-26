@@ -14,7 +14,7 @@ import plotly.graph_objects as go
 import plotly.io as pio
 
 pio.templates["carbonwise"] = pio.templates["plotly_white"]
-pio.templates["carbonwise"].layout.font = dict(family="Times New Roman, Times, serif", size=13)
+pio.templates["carbonwise"].layout.font = dict(family="Arial, sans-serif", size=13)
 pio.templates.default = "carbonwise"
 from io import StringIO
 from datetime import date
@@ -62,10 +62,7 @@ def render_evidence_room():
     st.markdown("""
     <style>
       .stApp { background: #f4f6f2; }
-      .stApp, .stMarkdown, .stDataFrame, .stButton button { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-      [data-testid="stSidebar"] { background: #101c19; }
-      [data-testid="stSidebar"] * { color: #eef3e9 !important; }
-      .evidence-hero { background: radial-gradient(ellipse at 83% 0%, #315849 0%, #182b25 42%, #101c19 100%);
+      .evidence-hero { background: #183a2e;
         border-radius: 24px; padding: 38px 42px 34px; color: #f7f7ef; margin: 4px 0 22px; position: relative; overflow: hidden; }
       .evidence-kicker { color: #c9e86b; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; font-weight: 700; }
       .evidence-title { font-size: clamp(34px, 4vw, 50px); line-height: 1.06; letter-spacing: -1.6px; font-weight: 750; margin: 12px 0 10px; max-width: 780px; }
@@ -335,9 +332,9 @@ def render_evidence_room():
 
             **Presenter guide.** This page is the short tour and includes the language to use in a review. A longer speaker script is in `docs/presenter_walkthrough.md`.
 
-            **Scenario Lab · synthetic model.** Choose it from the sidebar. Set a budget and how strongly the community-score inputs should count, explore the 15 area records and 56 generated example projects, then select **Compare investment plans**. Its scores, plan comparisons and distribution checks use generated data. They are not actual GCC recommendations or measured Chennai outcomes. Downloaded reports carry the same limitation.
+            **Try a sample plan.** Choose it from the sidebar. Set a budget and how strongly community need should count, explore 15 GCC zone records and 56 generated example projects, then choose **Build sample plan**. Its scores and comparisons use generated data. They are not actual GCC recommendations or measured Chennai outcomes. Downloads carry the same limitation.
 
-            **Best one-sentence description:** “CarbonWise is a prototype with a source-backed GCC evidence register and tender cross-check, plus a separate synthetic multi-objective optimizer demonstrating how carbon, resilience and equity trade-offs could be explored once comparable, verified project inputs are available.”
+            **Best one-sentence description:** “CarbonWise helps people review published Chennai climate-project records or compare possible investment plans using their own data or clearly labelled examples.”
 
             **Two-minute review script:** “I began with the 23 project records in the supplied GCC starter file. I matched each one to the Greater Chennai Corporation’s 2025–26 Climate Budget and show the report page, reported status, physical quantities, cost and caveats so a reviewer can trace a claim back to its source. The report gives useful delivery evidence—for example, GCC reports 5 km complete out of 11.6 km of Complete Streets, and 78% progress for Villivakkam Tank. I also reproduced five published GHG calculations directly from the report inputs; that validates arithmetic, not the underlying activity data or realised emissions. Separately, three drainage tender references match ADB award records. Contract values are shown as awards, while actual expenditure and physical completion remain unknown. The optimizer is a separate synthetic demonstration, so I do not present its scores as real Chennai recommendations. The main next evidence needed for a real ranking is project-level payment and completion records, measured outcomes, and a verified location/population crosswalk.”
             """)
@@ -360,8 +357,8 @@ def render_start_page():
     st.markdown("""
     <style>
       .cw-start { background:#f1f5ef; border:1px solid #dfe7dc; border-radius:18px; padding:32px 34px; margin:10px 0 22px; }
-      .cw-start-kicker { color:#607b4b; font:600 11px Inter,system-ui,sans-serif; letter-spacing:1px; text-transform:uppercase; }
-      .cw-start h1 { color:#19372b; font:700 clamp(32px,4vw,48px) Inter,system-ui,sans-serif; letter-spacing:-1.5px; margin:12px 0; }
+      .cw-start-kicker { color:#607b4b; font:600 11px Arial,sans-serif; letter-spacing:1px; text-transform:uppercase; }
+      .cw-start h1 { color:#19372b; font:700 clamp(32px,4vw,48px) Arial,sans-serif; letter-spacing:-1.5px; margin:12px 0; }
       .cw-start p { color:#52665a; font-size:15px; line-height:1.6; max-width:790px; margin:0; }
       .cw-choice { height:100%; border:1px solid #e1e7df; border-radius:12px; padding:18px; background:#fff; }
       .cw-choice h3 { color:#1d382d; font-size:18px; margin:0 0 8px; }
@@ -413,13 +410,11 @@ CARD_BG = "#FBFCFB"
 
 st.markdown(f"""
 <style>
-    html, body, .stApp {{
-        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }}
+    html, body, .stApp {{ font-family: Arial, sans-serif; }}
     p, span, li, td, th, label, h1, h2, h3, h4, h5, h6,
     .stMarkdown, .stDataFrame, .stButton button, .stSelectbox div, .stRadio label,
     .stTextInput input, .stNumberInput input, .stSlider label, .stCaption {{
-        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-family: Arial, sans-serif;
     }}
     [data-testid="stIconMaterial"], [class*="Icon"], .material-icons,
     [data-testid="stExpanderToggleIcon"] {{
@@ -490,14 +485,13 @@ w1, w2, w3 = (w1/total_w, w2/total_w, w3/total_w) if total_w else (1/3, 1/3, 1/3
 run_button = st.sidebar.button("Build sample plan", type="primary", use_container_width=True,
                                help="Builds one set of feasible plans using the generated example project table.")
 with st.sidebar.expander("More options"):
-    run_sensitivity_btn = st.checkbox("Compare 5 budget levels (slower)", value=False)
+    run_sensitivity_btn = st.checkbox("See how plans change across 5 budgets (slower)", value=False)
 
 st.sidebar.markdown("---")
 st.sidebar.markdown("**Data sources**")
 st.sidebar.caption(
-    "Ward vulnerability: Nandhini, Das & Shinde (2025), IIT Kharagpur/NIUA — "
-    "TOPSIS composite vulnerability index for Chennai's 15 GCC zones.\n\n"
-    "Project cost/impact ranges: MNRE, CEA, CPHEEO, FAME-II published benchmarks."
+    "GCC zone context: the sources listed in the sample data file; values are not independently validated here.\n\n"
+    "Example project ranges: published benchmark references listed in the source data. Projects are generated examples."
 )
 
 # ---------------------------------------------------------------------------
@@ -515,28 +509,12 @@ def load_data(w1, w2, w3):
 df, wards = load_data(w1, w2, w3)
 
 # ---------------------------------------------------------------------------
-# Infrastructure category overview -- makes the cross-sector scope of the
-# platform immediately visible, rather than buried in a data table
+# Summaries are shown inside the project list so they do not crowd the planner.
 # ---------------------------------------------------------------------------
-st.markdown("### Example projects by type")
-st.caption("Counts and candidate costs come from the generated practice table; they are not approved budgets or actual spending.")
 _cat_summary = df.groupby("category").agg(
     n_projects=("project_id", "count"),
     total_cost=("cost_cr_inr", "sum"),
 ).reset_index().sort_values("total_cost", ascending=False)
-
-_cat_cols = st.columns(4)
-for i, (_, row) in enumerate(_cat_summary.iterrows()):
-    with _cat_cols[i % 4]:
-        st.markdown(f"""
-        <div class="cw-tile" style="min-height: 92px;">
-            <div class="cw-tile-label" style="font-size:10.5px; line-height:1.3;">{row['category']}</div>
-            <div class="cw-tile-value" style="font-size:20px; margin-top:4px;">{int(row['n_projects'])} projects</div>
-            <div class="cw-tile-context">\u20b9{row['total_cost']:.0f} cr candidate cost</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-st.markdown("---")
 
 tab_map, tab_data, tab_results = st.tabs(["Areas", "Example projects", "Your sample plan"])
 
@@ -546,12 +524,12 @@ tab_map, tab_data, tab_results = st.tabs(["Areas", "Example projects", "Your sam
 # ---------------------------------------------------------------------------
 _validation = validate_data(df, wards)
 with st.sidebar.expander(
-    f"Sample data check: {'Ready' if _validation['status'] == 'READY' else 'Issues found'}",
+    f"Example data check: {'Ready' if _validation['status'] == 'READY' else 'Needs review'}",
     expanded=False
 ):
     st.markdown(f"""
     - Projects loaded: **{_validation['n_projects']}**
-    - Chennai zones: **{_validation['n_zones']}**
+    - GCC zones in file: **{_validation['n_zones']}**
     - Project categories: **{_validation['n_categories']}**
     - Total candidate cost: **₹{_validation['total_candidate_cost_cr']} cr**
     - Missing values: **{_validation['n_missing_values']}**
@@ -566,7 +544,7 @@ with st.sidebar.expander(
 # ---------------------------------------------------------------------------
 with tab_map:
     st.markdown("#### Sample data by area")
-    st.caption("Explore the 15 sample areas. Indicators come from cited sources, but the projects and resulting plan are generated examples.")
+    st.caption("Explore the 15 GCC zones listed in the sample file. These indicators and coordinates are not independently validated here; the example projects are generated.")
     col_map, col_detail = st.columns([2, 1])
 
     with col_map:
@@ -584,33 +562,32 @@ with tab_map:
             margin=dict(l=0, r=0, t=10, b=0),
             xaxis_title="West \u2192 East", yaxis_title="South \u2192 North",
             plot_bgcolor="#F2F5F3", paper_bgcolor="white",
-            coloraxis_colorbar=dict(title="Vulnerability"),
+            coloraxis_colorbar=dict(title="Community vulnerability"),
         )
         fig_map.update_yaxes(scaleanchor="x", scaleratio=1)
         for _, row in wards.iterrows():
             fig_map.add_annotation(x=row["lon"], y=row["lat"], text=row["zone_name"],
                                     showarrow=False, yshift=15, font=dict(size=9, color=INK))
         st.plotly_chart(fig_map, use_container_width=True)
-        st.caption("Zones positioned by real relative latitude/longitude. Bubble size = population, "
-                   "color = vulnerability index.")
+        st.caption("Each marker is a GCC zone from the sample file. Bubble size shows the file's population estimate; colour shows its vulnerability score. These are not project locations.")
 
 
     with col_detail:
         st.markdown("**Explore one area**")
-        selected_zone = st.selectbox("Planning area", wards["zone_name"].tolist())
+        selected_zone = st.selectbox("GCC zone", wards["zone_name"].tolist())
         zrow = wards[wards["zone_name"] == selected_zone].iloc[0]
 
         st.markdown(f"""
-        <div class="cw-tile"><div class="cw-tile-label">Community vulnerability indicator</div>
+        <div class="cw-tile"><div class="cw-tile-label">Community vulnerability score</div>
             <div class="cw-tile-value">{zrow['vulnerability_index']:.2f}</div></div>
-        <div class="cw-tile"><div class="cw-tile-label">Infrastructure service-gap indicator</div>
+        <div class="cw-tile"><div class="cw-tile-label">Infrastructure need score</div>
             <div class="cw-tile-value">{zrow['infrastructure_deprivation_index']:.2f}</div></div>
         <div class="cw-tile"><div class="cw-tile-label">Population (2023 est.)</div>
             <div class="cw-tile-value">{zrow['approx_population_2023']:,}</div></div>
         """, unsafe_allow_html=True)
 
         n_candidate_projects = len(df[df["zone_id"] == zrow["zone_id"]])
-        st.markdown(f"**Example projects listed for this area:** {n_candidate_projects}")
+        st.markdown(f"**Generated example projects in this zone:** {n_candidate_projects}")
         st.markdown(f'<div class="cw-source">Source: {zrow["data_source"]}<br>{zrow["notes"]}</div>',
                      unsafe_allow_html=True)
 
@@ -620,6 +597,7 @@ with tab_map:
 with tab_data:
     st.markdown("#### Browse generated example projects")
     st.caption("These are generated candidates with benchmark-based inputs. Their presence does not mean they have been proposed, funded, or completed.")
+    st.caption("Counts and candidate costs come from generated examples; they are not proposed budgets or actual spending.")
     fig_cat = go.Figure(go.Bar(
         x=_cat_summary["total_cost"], y=_cat_summary["category"],
         orientation="h", marker_color=FOREST,
@@ -639,20 +617,28 @@ with tab_data:
 
     st.markdown("**Example projects**")
     filtered_df = df[df["category"].isin(selected_categories)] if selected_categories else df
-    st.dataframe(
+    if filtered_df.empty:
+        st.info("No projects match those categories. Select another category to see examples.")
+    else:
+        st.dataframe(
         filtered_df[["project_id", "project_name", "category", "zone_name",
             "cost_cr_inr", "carbon_score_raw", "resilience_score_raw", "equity_score"]]
-        .rename(columns={"cost_cr_inr": "cost_₹cr", "carbon_score_raw": "carbon_score",
-                          "resilience_score_raw": "resilience_score"})
+        .rename(columns={"project_id":"Example ID", "project_name":"Project", "category":"Type", "zone_name":"GCC zone", "cost_cr_inr": "Candidate cost (Rs crore)", "carbon_score_raw": "Carbon score (relative)",
+                          "resilience_score_raw": "Resilience score (relative)", "equity_score":"Community score (relative)"})
         .round(1),
         height=400, use_container_width=True, hide_index=True
-    )
+        )
 
 # ---------------------------------------------------------------------------
 # TAB 3: Investment analysis (optimizer, scenarios, findings, equity audit, sensitivity)
 # ---------------------------------------------------------------------------
 with tab_results:
-    if not run_button:
+    if _validation["issues"]:
+        st.error("The sample data did not pass its checks, so a plan was not created. Review the data check in the sidebar.")
+        with st.expander("See the data checks"):
+            for issue in _validation["issues"]:
+                st.write(f"- {issue}")
+    elif not run_button:
         st.info("Set a budget and community priorities in the sidebar, then choose **Build sample plan**.")
     else:
         with st.spinner("Comparing feasible investment plans…"):
@@ -666,8 +652,8 @@ with tab_results:
             cw_mask = df["project_id"].isin(cw_ids)
 
             comparison = pd.DataFrame([
-                summarize_portfolio(df, eq_mask, "Equal Split"),
-                summarize_portfolio(df, greedy_mask, "Greedy Cost-Effectiveness"),
+                summarize_portfolio(df, eq_mask, "Equal share"),
+                summarize_portfolio(df, greedy_mask, "Lower cost per carbon score"),
                 summarize_portfolio(df, cw_mask, "CarbonWise"),
             ])
             scenarios_df = build_scenarios(front_df)
@@ -678,10 +664,10 @@ with tab_results:
         # --- KPI tiles ---
         c1, c2, c3, c4 = st.columns(4)
         for col, label, val, ctx in [
-            (c1, "Carbon benefit score", f"{balanced['carbon_score']:.0f}", "modelled sum for selected examples"),
-            (c2, "Resilience benefit score", f"{balanced['resilience_score']:.0f}", "modelled sum for selected examples"),
-            (c3, "Community benefit score", f"{balanced['equity_score']:.0f}", "composite planning proxy for selected examples"),
-            (c4, "Budget Utilised", f"{balanced['total_cost_cr']/budget_cr*100:.0f}%",
+            (c1, "Carbon score", f"{balanced['carbon_score']:.0f}", "relative sample score; not tonnes of CO2"),
+            (c2, "Resilience score", f"{balanced['resilience_score']:.0f}", "relative sample score; not measured protection"),
+            (c3, "Community score", f"{balanced['equity_score']:.0f}", "relative sample score; not measured benefits"),
+            (c4, "Budget used", f"{balanced['total_cost_cr']/budget_cr*100:.0f}%",
              f"₹{balanced['total_cost_cr']:.1f} cr of ₹{budget_cr:.0f} cr"),
         ]:
             col.markdown(f'<div class="cw-tile"><div class="cw-tile-label">{label}</div>'
@@ -698,11 +684,12 @@ with tab_results:
 
             st.markdown("---")
 
-            st.markdown("#### Compare with two simple allocation approaches")
+            st.markdown("#### Compare three ways to choose projects")
             fig_comp = go.Figure()
             for metric, color in zip(["carbon_score", "resilience_score", "equity_score"],
                                        [FOREST, "#3D6B8C", GOLD]):
-                fig_comp.add_trace(go.Bar(name=metric.replace("_score", "").title(),
+                chart_name = {"carbon_score": "Carbon", "resilience_score": "Resilience", "equity_score": "Community"}[metric]
+                fig_comp.add_trace(go.Bar(name=chart_name,
                                            x=comparison["method"], y=comparison[metric], marker_color=color))
             fig_comp.update_layout(barmode="group", height=360, margin=dict(l=0, r=0, t=10, b=0),
                                     plot_bgcolor="white", legend=dict(orientation="h", y=1.1))
@@ -711,26 +698,32 @@ with tab_results:
             st.markdown("---")
 
             # --- Scenario simulator ---
-            st.markdown("#### Compare four planning options")
-            st.caption("These options are selected from the same set of feasible plans. Each emphasizes a different modelled benefit; none is a separate forecast.")
+            st.markdown("#### What changes when priorities change?")
+            st.caption("These example plans emphasize different relative scores. They are not forecasts.")
             fig_scen = go.Figure()
             for metric, color in zip(["carbon_score", "resilience_score", "equity_score"],
                                        [FOREST, "#3D6B8C", GOLD]):
-                fig_scen.add_trace(go.Bar(name=metric.replace("_score", "").title(),
+                chart_name = {"carbon_score": "Carbon", "resilience_score": "Resilience", "equity_score": "Community"}[metric]
+                fig_scen.add_trace(go.Bar(name=chart_name,
                                            x=scenarios_df["scenario"], y=scenarios_df[metric], marker_color=color))
             fig_scen.update_layout(barmode="group", height=360, margin=dict(l=0, r=0, t=10, b=0),
                                     plot_bgcolor="white", legend=dict(orientation="h", y=1.1))
             st.plotly_chart(fig_scen, use_container_width=True)
-            st.dataframe(scenarios_df[["scenario", "n_projects", "total_cost_cr",
-                                         "carbon_score", "resilience_score", "equity_score"]].round(1),
+            scenario_view = scenarios_df[["scenario", "n_projects", "total_cost_cr",
+                                          "carbon_score", "resilience_score", "equity_score"]].rename(columns={
+                "scenario": "Plan style", "n_projects": "Projects", "total_cost_cr": "Cost (₹ crore)",
+                "carbon_score": "Carbon score", "resilience_score": "Resilience score",
+                "equity_score": "Community score",
+            })
+            st.dataframe(scenario_view.round(1),
                          use_container_width=True, hide_index=True)
 
             st.markdown("---")
 
-            # --- Findings + Pareto front ---
+            # --- Findings + other available plans ---
             col_findings, col_pareto = st.columns([1, 1])
             with col_findings:
-                st.markdown("#### What stands out")
+                st.markdown("#### Plan summary")
 
                 context = {
                     "budget_cr": budget_cr,
@@ -739,31 +732,33 @@ with tab_results:
                     "equity_score": round(balanced["equity_score"], 0),
                     "projects_funded": int(balanced["n_projects"]),
                     "budget_utilised_pct": round(balanced["total_cost_cr"] / budget_cr * 100, 0),
-                    "greedy_carbon_score": round(comparison[comparison["method"].str.contains("Greedy")]["carbon_score"].iloc[0], 0),
+                    "greedy_carbon_score": round(comparison[comparison["method"].str.contains("Lower cost")]["carbon_score"].iloc[0], 0),
                     "high_vulnerability_investment_share_pct": round(audit["after"]["actual_share_pct"], 0),
                 }
                 explanation = generate_explanation(context, comparison, budget_cr)
                 st.markdown(f'<div class="cw-finding">{explanation["text"]}</div>', unsafe_allow_html=True)
                 if explanation["source"] == "llm":
-                    st.caption("AI-generated explanation based on this model run. Review it against the data and limitations shown here.")
+                    st.caption("AI-written summary of this sample-model run. It does not verify the data or the real-world effects.")
                 elif explanation["error"]:
-                    st.caption(f"Note: {explanation['error']}")
+                    st.caption("AI explanation was unavailable; showing a rule-based summary instead.")
+                else:
+                    st.caption("Rule-based summary from the displayed sample-model results.")
 
-                with st.expander("How the plan was reviewed"):
+                with st.expander("How the model compared options"):
                     for entry in council:
                         label = entry["agent"]
                         st.markdown(f'<div class="cw-finding"><b>{label}.</b> {entry["statement"]}</div>',
                                      unsafe_allow_html=True)
 
             with col_pareto:
-                st.markdown("#### Plans that balance different goals")
-                st.caption("Each dot is a feasible plan from the model search. Moving across the chart shows trade-offs between carbon and resilience scores; colour shows the composite community score.")
+                st.markdown("#### Other plans found")
+                st.caption("Each dot is one feasible option found by the search. The search may not find every possible option. Scores are relative sample measures.")
                 fig_pareto = px.scatter(front_df, x="carbon_score", y="resilience_score",
                                          color="equity_score", color_continuous_scale="Viridis",
                                          hover_data={"n_projects": True, "total_cost_cr": ":.1f",
                                                      "carbon_score": ":.0f", "resilience_score": ":.0f",
                                                      "equity_score": ":.0f"},
-                                         height=380)
+                                         height=380, labels={"carbon_score":"Carbon score (relative)", "resilience_score":"Resilience score (relative)", "equity_score":"Community score (relative)"})
                 fig_pareto.add_trace(go.Scatter(
                     x=[balanced["carbon_score"]], y=[balanced["resilience_score"]],
                     mode="markers", marker=dict(symbol="star", size=20, color=DANGER,
@@ -777,52 +772,47 @@ with tab_results:
                     hoverinfo="text"))
                 fig_pareto.update_layout(margin=dict(l=0, r=0, t=10, b=0), plot_bgcolor="white")
                 st.plotly_chart(fig_pareto, use_container_width=True)
-                st.caption(f"{len(front_df)} non-dominated solutions found across {len(df)} candidate projects.")
+                st.caption(f"The search returned {len(front_df)} non-dominated options from {len(df)} generated examples. This is not a guarantee that every possible plan was found.")
 
             st.markdown("---")
 
             # --- Equity Audit ---
             st.markdown("#### Where the example investment goes")
-            st.caption("Compares the share of modeled investment in zones labelled high vulnerability with a population-share benchmark. This is a distribution check, not proof of fair outcomes.")
+            st.caption("Compares how sample-model costs are split between zones above the sample's vulnerability threshold and their population share. This does not measure who received project benefits or prove fair outcomes.")
             col_before, col_after = st.columns(2)
             with col_before:
                 st.markdown(f"""
-                <div class="cw-tile"><div class="cw-tile-label">Greedy (cost-effectiveness only)</div>
+                <div class="cw-tile"><div class="cw-tile-label">Lower cost per carbon score</div>
                     <div class="cw-tile-value" style="color:{DANGER}">{audit['before']['actual_share_pct']:.0f}%</div>
-                    <div class="cw-tile-context">of investment to high-vulnerability zones
-                    (target: {audit['target_share_pct']:.0f}%, gap {audit['before']['gap_pct_points']:.0f} pts)</div>
+                    of sample cost in zones above the chosen threshold
+                    (population-share reference: {audit['target_share_pct']:.0f}%)</div>
                 </div>""", unsafe_allow_html=True)
             with col_after:
                 st.markdown(f"""
                 <div class="cw-tile"><div class="cw-tile-label">CarbonWise</div>
                     <div class="cw-tile-value" style="color:{FOREST}">{audit['after']['actual_share_pct']:.0f}%</div>
-                    <div class="cw-tile-context">of investment to high-vulnerability zones
-                    (target: {audit['target_share_pct']:.0f}%, gap {audit['after']['gap_pct_points']:+.0f} pts)</div>
+                    of sample cost in zones above the chosen threshold
+                    (population-share reference: {audit['target_share_pct']:.0f}%)</div>
                 </div>""", unsafe_allow_html=True)
 
             if audit["before"]["gap_pct_points"] < -5:
                 st.markdown(f"""
                 <div class="cw-callout">
-                    <b>Distributive shortfall detected.</b> Cost-effectiveness-only allocation directs
-                    {audit['before']['actual_share_pct']:.0f}% of investment to zones holding
-                    {audit['target_share_pct']:.0f}% of Chennai's high-vulnerability population — a
-                    {abs(audit['before']['gap_pct_points']):.0f}-point shortfall, consistent with the
-                    underinvestment pattern documented empirically in Nandhini et al. (2025).
-                    CarbonWise's recommended portfolio corrects this to
-                    {audit['after']['actual_share_pct']:.0f}% ({audit['improvement_pct_points']:+.0f} points)
-                    by encoding equity as an explicit optimisation objective.
+                    In this sample run, the cost share in zones above the selected threshold is
+                    {audit['before']['actual_share_pct']:.0f}% for the carbon-efficiency baseline and
+                    {audit['after']['actual_share_pct']:.0f}% for the balanced sample plan. The
+                    population-share reference is {audit['target_share_pct']:.0f}%. This describes
+                    the model's allocation only; it is not a real-world fairness or benefit finding.
                 </div>
                 """, unsafe_allow_html=True)
             else:
                 st.markdown(f"""
                 <div class="cw-callout">
-                    <b>Honest reading of this result.</b> At this budget, both methods currently meet
-                    or exceed the population-proportional target ({audit['target_share_pct']:.0f}%).
-                    CarbonWise does not claim to always outperform Greedy on this specific
-                    investment-share metric — its measured advantage here is in resilience and the
-                    weighted equity score (above). CarbonWise's contribution is that equity is encoded
-                    as an explicit, auditable optimisation objective and independently audited on every
-                    run, rather than assumed.
+                    In this sample run, the cost share in zones above the selected threshold is
+                    {audit['before']['actual_share_pct']:.0f}% for the carbon-efficiency baseline and
+                    {audit['after']['actual_share_pct']:.0f}% for the balanced sample plan. The
+                    population-share reference is {audit['target_share_pct']:.0f}%. This describes
+                    the model's allocation only; it is not a real-world fairness or benefit finding.
                 </div>
                 """, unsafe_allow_html=True)
 
@@ -831,8 +821,7 @@ with tab_results:
             # --- Sensitivity analysis (optional, slower) ---
             if run_sensitivity_btn:
                 st.markdown("#### Budget sensitivity")
-                st.caption("How outcomes and marginal returns change as available budget scales — "
-                           "useful for a finance department deciding whether additional budget is worth requesting.")
+                st.caption("See how the sample scores change at five budget levels. This is an exploratory model comparison, not a forecast of city outcomes.")
                 with st.spinner("Running optimizer across 5 budget levels (~10-15s)..."):
                     levels = sorted(set([max(10, budget_cr * f) for f in [0.4, 0.7, 1.0, 1.5, 2.0]]))
                     sens_df = run_sensitivity(df, levels, pop_size=80, n_gen=100)
@@ -840,8 +829,9 @@ with tab_results:
                 fig_sens = go.Figure()
                 for metric, color in zip(["carbon_score", "resilience_score", "equity_score"],
                                            [FOREST, "#3D6B8C", GOLD]):
+                    chart_name = {"carbon_score": "Carbon", "resilience_score": "Resilience", "equity_score": "Community"}[metric]
                     fig_sens.add_trace(go.Scatter(x=sens_df["budget_cr"], y=sens_df[metric],
-                                                    mode="lines+markers", name=metric.replace("_score","").title(),
+                                                    mode="lines+markers", name=chart_name,
                                                     line=dict(color=color, width=2)))
                 fig_sens.update_layout(height=360, margin=dict(l=0, r=0, t=10, b=0), plot_bgcolor="white",
                                         xaxis_title="Budget (₹ crore)", yaxis_title="Score",
@@ -850,8 +840,8 @@ with tab_results:
 
                 sens_df["marginal_carbon_per_cr"] = sens_df["carbon_score"].diff() / sens_df["budget_cr"].diff()
                 st.dataframe(sens_df.round(2), use_container_width=True, hide_index=True)
-                st.caption("Marginal carbon score gained per additional ₹1 crore — a declining trend indicates "
-                           "diminishing returns on further budget increases.")
+                st.caption("Change in the relative carbon score for each additional ₹1 crore of budget. "
+                           "This is a comparison of sample model results, not a forecast of real emissions.")
                 st.markdown("---")
 
         # --- Recommended portfolio + export ---
@@ -859,20 +849,23 @@ with tab_results:
         recommended = df[df["project_id"].isin(cw_ids)][
             ["project_id", "project_name", "category", "zone_name", "cost_cr_inr",
              "carbon_score_raw", "resilience_score_raw", "equity_score"]
-        ].round(1)
+        ].rename(columns={"project_id":"Example ID", "project_name":"Project", "category":"Type", "zone_name":"GCC zone", "cost_cr_inr":"Candidate cost (Rs crore)", "carbon_score_raw":"Carbon score (relative)", "resilience_score_raw":"Resilience score (relative)", "equity_score":"Community score (relative)"}).round(1)
         st.dataframe(recommended, use_container_width=True, hide_index=True)
+        st.caption("All rows are generated sample projects. The scores are relative model inputs, not measured emissions reductions, resilience outcomes, or community benefits.")
 
         csv_buffer = StringIO()
         recommended.to_csv(csv_buffer, index=False)
         report_header = (
-            f"# CarbonWise Investment Brief\n"
+            f"# CarbonWise sample investment plan\n"
+            f"# DATA BASIS: generated demonstration projects; not actual proposals or observed outcomes\n"
+            f"# Scores are relative model scores, not physical impact units\n"
             f"# Generated: {date.today().isoformat()}\n"
             f"# Budget: Rs. {budget_cr:.1f} crore | Utilised: Rs. {balanced['total_cost_cr']:.1f} crore "
             f"({balanced['total_cost_cr']/budget_cr*100:.0f}%)\n"
             f"# Carbon score: {balanced['carbon_score']:.0f} | Resilience score: {balanced['resilience_score']:.0f} "
             f"| Equity score: {balanced['equity_score']:.0f}\n"
-            f"# Equity weights used: vulnerability={w1:.2f}, population_benefited={w2:.2f}, "
-            f"infrastructure_deprivation={w3:.2f}\n\n"
+            f"# Sample priority weights: community vulnerability={w1:.2f}, people served={w2:.2f}, "
+            f"infrastructure need={w3:.2f}\n\n"
         )
 
         full_report_text = generate_report(df, wards, budget_cr, balanced, front_df,
