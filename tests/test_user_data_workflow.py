@@ -5,7 +5,7 @@ import unittest
 
 import numpy as np
 import pandas as pd
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
@@ -82,6 +82,19 @@ class UserDataWorkflowTests(unittest.TestCase):
         _, result = analyze_image_pixels(green_png.getvalue())
         self.assertEqual(result["green_hued_pixel_share_pct"], 100.0)
         self.assertIn("not semantic segmentation", result["method"])
+
+    def test_pixel_results_follow_the_current_image_bytes(self):
+        green_png, red_png = BytesIO(), BytesIO()
+        Image.new("RGB", (8, 8), (0, 255, 0)).save(green_png, format="PNG")
+        Image.new("RGB", (8, 8), (255, 0, 0)).save(red_png, format="PNG")
+        _, green_result = analyze_image_pixels(green_png.getvalue())
+        _, red_result = analyze_image_pixels(red_png.getvalue())
+        self.assertEqual(green_result["green_hued_pixel_share_pct"], 100.0)
+        self.assertEqual(red_result["green_hued_pixel_share_pct"], 0.0)
+
+    def test_invalid_image_bytes_raise_a_readable_pipeline_error(self):
+        with self.assertRaises(UnidentifiedImageError):
+            analyze_image_pixels(b"not an image")
 
 
 if __name__ == "__main__":

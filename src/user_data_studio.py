@@ -11,6 +11,7 @@ import zipfile
 import pandas as pd
 import plotly.express as px
 import streamlit as st
+from PIL import UnidentifiedImageError
 
 from user_data_workflow import (
     REQUIRED_FIELDS, analyze_image_pixels, build_optimizer_frame,
@@ -19,6 +20,7 @@ from user_data_workflow import (
 )
 from baselines import equal_split_allocation, greedy_cost_effectiveness_allocation
 from optimizer import run_nsga2, pareto_front_to_df, pick_balanced_solution
+from street_view_insights import formatted_pixel_count, plain_language_reading, valid_percentage
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -47,7 +49,7 @@ def _run_nsga(df, budget, priorities, equity_floor=None):
     if equity_floor is not None and not selected.empty and selected["equity_score"].mean() + 1e-7 < equity_floor:
         raise RuntimeError("Optimizer returned a portfolio below the configured equity floor; results were withheld.")
     masks = {
-        "CarbonWise · NSGA-II": df["project_id"].astype(str).isin(selected_ids),
+        "CarbonWise plan": df["project_id"].astype(str).isin(selected_ids),
         "Equal split baseline": equal_split_allocation(df, budget),
         "Carbon-efficiency baseline": greedy_cost_effectiveness_allocation(df, budget),
     }
@@ -174,8 +176,8 @@ def _make_audit_packet(audits):
 
 
 def _data_workspace(source):
-    st.markdown("### 1 · Data Workspace")
-    st.write("Upload CSV or Excel, inspect its shape and quality, map the five model fields, then correct or delete rows before any optimization.")
+    st.markdown("### 1 · Upload and prepare data")
+    st.write("Upload a project file, match its columns to the planning fields, then review and correct the rows before comparing plans.")
     uploader, actions = st.columns([3, 1])
     with uploader:
         uploaded = st.file_uploader("Project data (.csv, .xlsx, .xlsm)", type=["csv", "xlsx", "xlsm"], key="cw_upload_file")
@@ -212,16 +214,16 @@ def _data_workspace(source):
                 st.error(f"Could not read upload: {exc}")
     source = st.session_state.get("cw_source_frame")
     if source is None:
-        st.info("Upload project data or load the synthetic demo to begin. Nothing is analyzed until you map fields and run the optimizer.")
+        st.info("Upload project data or load the practice example to begin. CarbonWise will not compare plans until you map the required fields and start a run.")
         return
 
     name = st.session_state.get("cw_source_name", "User upload")
     if name.startswith("SYNTHETIC DEMO"):
-        st.warning("SYNTHETIC DEMO DATA — all project rows and impact values are invented for interface demonstration. Do not present them as Chennai project evidence.")
+        st.info("Practice data: every project row and impact value is invented for interface demonstration. Do not present it as Chennai project evidence.")
     else:
         st.success(f"Active dataset: **{name}** · {len(source):,} rows · SHA-256 `{st.session_state.get('cw_source_sha256','')[:16]}…`")
 
-    st.markdown("#### File profile")
+    st.markdown("#### Quick file check")
     p1, p2, p3 = st.columns(3)
     p1.metric("Rows × columns", f"{source.shape[0]:,} × {source.shape[1]:,}")
     p2.metric("Duplicate full rows", f"{int(source.duplicated().sum()):,}")
@@ -235,7 +237,7 @@ def _data_workspace(source):
     columns = list(source.columns)
     choices = ["(not mapped)"] + columns
     guesses = default_column_mapping(columns)
-    with st.expander("Map source columns to the CarbonWise model", expanded=st.session_state.get("cw_working_data") is None):
+    with st.expander("Match file columns to planning fields", expanded=st.session_state.get("cw_working_data") is None):
         with st.form("cw_column_mapping"):
             left, middle, right = st.columns(3)
             mapping = {}
@@ -253,7 +255,7 @@ def _data_workspace(source):
                         index=choices.index(default) if default in choices else 0, key=f"cw_map_{field}")
             cost_unit = st.text_input("Cost unit label (e.g. crore INR, USD, or points)",
                 value=st.session_state.get("cw_cost_unit", "same unit as uploaded cost column"))
-            applied = st.form_submit_button("Apply mapping to working dataset", type="primary")
+            applied = st.form_submit_button("Use these columns", type="primary")
         if applied:
             try:
                 mapped = map_to_carbonwise(source, mapping)
@@ -268,8 +270,8 @@ def _data_workspace(source):
     if mapped is None:
         st.info("Map the required ID, cost, carbon, resilience, and equity fields to create the working dataset.")
         return
-    st.markdown("#### Correct or exclude rows")
-    st.caption("Edit mapped values in place or use the row controls to remove invalid records. Unmapped source fields remain attached to the original upload for exports.")
+    st.markdown("#### Review and correct the working data")
+    st.caption("Edit the planning fields or remove rows you do not want to include. The original uploaded rows remain available in exports.")
     editable_cols = ["project_id", "project_name", "category", "zone_id", "cost_cr_inr",
                      "carbon_reduction_tco2_per_year", "resilience_benefit_raw", "equity_raw"]
     edited = st.data_editor(mapped[editable_cols + ["_source_row"]], key="cw_mapped_editor", num_rows="dynamic",
@@ -289,75 +291,136 @@ def _data_workspace(source):
         st.dataframe(issues, hide_index=True, use_container_width=True)
     else:
         st.success(f"Validation passed: {len(edited):,} unique project rows with complete numeric model inputs.")
-    st.caption("Equity is min–max normalized within this dataset to a 0–100 comparison scale for constraints and portfolio selection. The original mapped value remains available as `equity_raw`. No missing model value is imputed.")
+    st.caption("The community score is scaled from 0–100 within this dataset for comparison; it is not an absolute impact measure. Original values are retained, and missing values are never filled in automatically.")
 
 
 def _visual_audit(source):
-    st.markdown("### 2 · Visual Street Audit")
-    st.write("Capture or upload a street photo. CarbonWise computes simple color-pixel shares locally, then asks a person to label and confirm the observation.")
-    if source is None:
-        st.info("Load project data first if you want to associate this observation with one of its wards/zones.")
+    st.markdown("### Street View Insights")
+    st.write("A visual snapshot of the street you uploaded.")
+    photo_source = st.radio("Choose photo source", ["Upload a photo", "Use camera"], horizontal=True, key="cw_photo_source")
     shot = st.camera_input("Capture a street observation", key="cw_camera_capture")
     uploaded = st.file_uploader("Or upload a street photo", type=["png", "jpg", "jpeg"], key="cw_audit_photo")
-    photo = shot if shot is not None else uploaded
+    photo = uploaded if photo_source == "Upload a photo" else shot
     if photo is None:
-        st.caption("Camera requires browser permission and a secure browser context. If it is unavailable, upload a photo instead.")
+        if photo_source == "Use camera":
+            st.info("Allow camera access and capture a photo to continue. You can switch to **Upload a photo** if camera access is unavailable.")
+        else:
+            st.info("Choose a PNG or JPEG photo above. The photo will be analyzed after you add it.")
+        st.caption("Camera access depends on your browser permissions. On a public deployment, the secure site URL supports browser camera access; photo upload remains available.")
         return
     photo_bytes = photo.getvalue()
-    st.image(photo_bytes, caption="Original user-submitted image", use_container_width=True)
     try:
         image, result = analyze_image_pixels(photo_bytes)
-    except Exception as exc:
-        st.error(f"Image could not be analyzed ({exc}). You can still record a note without the pixel summary.")
+    except UnidentifiedImageError:
+        st.error("This file could not be read as an image. Choose a valid PNG or JPEG photo and try again.")
+        st.caption("The uploaded file remains selected. Choose a valid image or replace it to continue.")
         return
-    a, b, c = st.columns(3)
-    a.metric("Green-hued pixels", f"{result['green_hued_pixel_share_pct']:.1f}%")
-    b.metric("Low-saturation gray pixels", f"{result['low_saturation_gray_pixel_share_pct']:.1f}%")
-    c.metric("Analyzed pixels", f"{result['sampled_pixels']:,}")
-    st.warning("Color-threshold heuristic only. Green-colored pixels are not verified vegetation; gray pixels are not verified roads or sidewalks. The image does not establish emissions, flooding, safety, population vulnerability, project completion, or causality.")
-    if source is None:
-        st.info("The image summary is available, but no uploaded project dataset is active to link a ward.")
+    except ValueError as exc:
+        st.error(f"This photo could not be analyzed: {exc}")
+        st.caption("The uploaded file remains selected. Choose a valid image or replace it to continue.")
         return
+    except Exception:
+        st.error("Photo analysis did not complete. Try a different PNG or JPEG image.")
+        st.caption("The uploaded file remains selected. Choose a valid image or replace it to continue.")
+        return
+
+    st.success("Photo uploaded and analyzed")
+    image_col, result_col = st.columns([1.05, 1], gap="large")
+    with image_col:
+        st.image(image, caption="Your uploaded street photo", use_container_width=True)
+    with result_col:
+        st.markdown("#### Color snapshot")
+        green = valid_percentage(result, "green_hued_pixel_share_pct")
+        gray = valid_percentage(result, "low_saturation_gray_pixel_share_pct")
+        pixels = formatted_pixel_count(result)
+        cards = st.columns(2)
+        with cards[0]:
+            st.metric("Green-coloured areas", f"{green:.1f}%" if green is not None else "Unavailable")
+            st.caption("Areas that may contain greenery")
+        with cards[1]:
+            st.metric("Grey-coloured areas", f"{gray:.1f}%" if gray is not None else "Unavailable")
+            st.caption("Possible roads, paths, buildings, or other surfaces")
+        st.metric("Image coverage analysed", pixels or "Unavailable")
+        st.caption("Pixels scanned to estimate the share of selected colours")
+
+    st.markdown("#### What does this tell us?")
+    st.write(plain_language_reading(result))
+
+    with st.expander("About this estimate"):
+        st.write("These results are estimates based on image colours. Green-coloured areas may include objects other than plants, while grey-coloured areas may include surfaces other than roads or paths. The image alone cannot establish emissions, flood risk, safety, community vulnerability, or whether a project has been completed.")
+    with st.expander("How was this calculated?"):
+        st.markdown("""
+        CarbonWise converts the image to **HSV (hue, saturation, value)** colour space, then applies two fixed colour rules:
+
+        - **Green-hued:** Pillow hue channel 30–100 on its 0–255 scale (not degrees), saturation at least 50, and brightness/value at least 30.
+        - **Low-saturation gray:** saturation at most 45 and brightness/value from 35 to 205.
+        - **Percentage denominator:** all pixels in the resized image preview. The image is converted to RGB and scaled down, preserving its aspect ratio, so its longest side is no more than 512 pixels. The scan does not crop the image.
+        - **Overlap:** the two current rules cannot overlap because their saturation ranges are separate.
+
+        Shadows, lighting, camera settings, compression, blur, and image quality can change the colour values and therefore the estimates. This is a simple colour-based estimate, not object recognition or a validated environmental measurement.
+        """)
+
+    st.markdown("#### Connect this image to a project area")
+    st.write("Link this image to a ward or project area to view it alongside the planning data available in CarbonWise.")
     mapped = st.session_state.get("cw_working_data")
-    if mapped is None or mapped["zone_id"].astype(str).str.strip().replace("<NA>", "").eq("").all():
-        st.info("Map a ward/zone column in the Data Workspace to link observations to projects.")
-        zones = ["(unlinked)"]
+    if source is None:
+        st.info("No project dataset is active, so there are no project areas to select. Load your data in **Data Workspace**, map its ward/zone column, then return here.")
+        zones = []
+    elif mapped is None:
+        st.info("Your data is uploaded but its columns are not mapped yet. Map a ward/zone column in **Data Workspace** to see the available project areas here.")
+        zones = []
+    elif "zone_id" not in mapped:
+        st.info("The mapped dataset has no ward/zone field. Reopen **Data Workspace** and map a location column, if one is available in your source file.")
+        zones = []
     else:
-        zones = ["(unlinked)"] + sorted(mapped["zone_id"].dropna().astype(str).unique().tolist())
+        zones = sorted({str(value).strip() for value in mapped["zone_id"].dropna() if str(value).strip() and str(value).strip().lower() != "<na>"})
+        if not zones:
+            st.info("No project areas are available in the mapped data. Map a populated ward/zone column in **Data Workspace**. This image will remain unlinked.")
+
     with st.form("cw_confirm_street_audit"):
-        category = st.selectbox("Human-entered observation", ["Shade gap visible", "Standing water visible", "Drain obstruction visible", "No issue noted", "Other / needs review"])
-        zone = st.selectbox("Associate with ward/zone", zones)
-        note = st.text_area("Field note", placeholder="What did you observe? Include date/context if relevant.")
-        confirmed = st.checkbox("I reviewed the photo and confirm this is my observation; pixel percentages are descriptive only.")
-        saved = st.form_submit_button("Save confirmed observation to this session", type="primary")
+        category = st.selectbox("Your observation", ["Shade gap visible", "Standing water visible", "Drain obstruction visible", "No issue noted", "Other / needs review"])
+        zone = st.selectbox("Project area (optional)", ["Keep unlinked"] + zones, help="Choose an area explicitly. CarbonWise does not infer a location from the image.")
+        note = st.text_area("Field note", placeholder="What did you observe? Add date or context if useful.")
+        confirmed = st.checkbox("I reviewed the photo and confirm this observation is mine. The colour estimates are descriptive only.")
+        saved = st.form_submit_button("Save observation to this session", type="primary")
     if saved:
         if not confirmed:
             st.error("Confirm the human observation before saving it.")
         else:
+            selected_zone = zone if zone != "Keep unlinked" else "(unlinked)"
             record = {"saved_at_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-                "observation": category, "zone_id": zone, "note": note,
+                "observation": category, "zone_id": selected_zone, "note": note,
                 **result, "image_sha256": sha256(photo_bytes).hexdigest(),
                 "image_filename": Path(getattr(photo, "name", "camera_capture.jpg")).name,
+                "image_status": "uploaded and analyzed",
+                "link_status": "manually linked" if selected_zone != "(unlinked)" else "not linked",
                 "status": "user-confirmed observation; independently unverified"}
             st.session_state.setdefault("cw_confirmed_audits", []).append(record)
             st.session_state.setdefault("cw_audit_images", {})[record["image_sha256"]] = photo_bytes
             st.session_state["cw_latest_audit_photo"] = photo_bytes
-            st.success("Observation saved in this browser session. It does not alter optimization values unless you later apply a separately configured what-if assumption.")
+            if selected_zone != "(unlinked)":
+                st.success(f"Observation saved and linked to project area {selected_zone} in this browser session.")
+            else:
+                st.success("Observation saved without a project-area link. You can associate it manually once a mapped area is available.")
+            st.caption("Saving the image note does not change project data or investment results.")
+    else:
+        st.caption("Status: photo uploaded and analyzed · project-area link will be recorded only if you select one and save.")
     audits = st.session_state.get("cw_confirmed_audits", [])
     if audits:
-        st.dataframe(pd.DataFrame(audits), use_container_width=True, hide_index=True)
-        st.download_button("Download session audit log", pd.DataFrame(audits).to_csv(index=False).encode(), "carbonwise_field_audit.csv", "text/csv")
+        with st.expander(f"Saved observations in this session ({len(audits)})"):
+            st.dataframe(pd.DataFrame(audits), use_container_width=True, hide_index=True)
+            st.download_button("Download session audit log", pd.DataFrame(audits).to_csv(index=False).encode(), "carbonwise_field_audit.csv", "text/csv")
 
 
 def _run_optimizer(source):
-    st.markdown("### 3 · Investment Optimization")
+    st.markdown("### 3 · Compare investment plans")
     mapped = st.session_state.get("cw_working_data")
     if mapped is None:
-        st.info("Apply a column mapping in the Data Workspace first.")
+        st.info("Prepare your file in **Upload and prepare data** first.")
         return
     issues = validate_mapped_data(mapped)
     if not issues.empty:
-        st.error("Optimization is disabled until the working dataset passes validation. Return to the Data Workspace to correct or remove flagged rows.")
+        st.error("Plan comparison is paused until the working data passes its checks. Return to **Upload and prepare data** to correct or remove flagged rows.")
         st.dataframe(issues, use_container_width=True, hide_index=True)
         return
     df = build_optimizer_frame(mapped)
@@ -369,13 +432,14 @@ def _run_optimizer(source):
         budget = st.number_input(f"Available budget ({st.session_state.get('cw_cost_unit','dataset cost units')})",
             min_value=0.01, max_value=max(max_budget, 0.01), value=max(0.01, max_budget * 0.5),
             step=max(0.01, max_budget / 20), format="%.4f")
-        st.markdown("**Portfolio preference when choosing one point from the Pareto frontier**")
+        st.markdown("**How should CarbonWise choose a balanced plan?**")
+        st.caption("The sliders set the relative importance of each goal when selecting one plan from the available trade-offs.")
         c1, c2, c3 = st.columns(3)
-        carbon_weight = c1.slider("Carbon preference", 0.0, 1.0, 0.40, 0.05)
-        resilience_weight = c2.slider("Resilience preference", 0.0, 1.0, 0.30, 0.05)
-        equity_weight = c3.slider("Equity preference", 0.0, 1.0, 0.30, 0.05)
-        require_equity = st.checkbox("Require a minimum average equity score (0–100)")
-        floor = st.slider("Minimum portfolio mean equity score", 0, 100, 50, 1, disabled=not require_equity)
+        carbon_weight = c1.slider("Carbon benefit", 0.0, 1.0, 0.40, 0.05)
+        resilience_weight = c2.slider("Resilience benefit", 0.0, 1.0, 0.30, 0.05)
+        equity_weight = c3.slider("Community score", 0.0, 1.0, 0.30, 0.05)
+        require_equity = st.checkbox("Set a minimum average community score")
+        floor = st.slider("Minimum score (0–100 within this dataset)", 0, 100, 50, 1, disabled=not require_equity)
         audits = usable_audits
         apply_audit = st.checkbox("Apply an explicit what-if resilience adjustment from a confirmed field audit",
                                   disabled=not audits,
@@ -385,9 +449,9 @@ def _run_optimizer(source):
         if audits:
             selected_audit = st.selectbox("Confirmed audit to use", range(len(audits)), format_func=lambda i: f"{audits[i]['observation']} · {audits[i]['zone_id']} · {audits[i]['saved_at_utc']}")
             adjustment = st.slider("User-entered resilience benefit adjustment for matching zone (%)", 0, 50, 10, 1, disabled=not apply_audit)
-        submitted = st.form_submit_button("Run uploaded-data NSGA-II", type="primary")
+        submitted = st.form_submit_button("Generate investment plan", type="primary")
     if not submitted:
-        st.caption(f"Active dataset: {st.session_state.get('cw_source_name')} · {len(df)} candidate projects · no run occurs until you press the button.")
+        st.caption(f"Active dataset: {st.session_state.get('cw_source_name')} · {len(df)} project rows · no plan is generated until you select the button.")
         return
     weights = (carbon_weight, resilience_weight, equity_weight)
     if sum(weights) <= 0:
@@ -402,12 +466,12 @@ def _run_optimizer(source):
             st.error("The confirmed audit ward does not match any candidate project's mapped ward; no adjustment was applied.")
             return
         run_df.loc[mask, "resilience_benefit_raw"] *= (1 + adjustment / 100)
-    with st.spinner("Running the existing CarbonWise NSGA-II optimizer on the active uploaded dataset…"):
+    with st.spinner("Comparing feasible plans from the active dataset…"):
         try:
             _, _, front, balanced, selected_ids, masks = _run_nsga(
                 run_df, budget, weights, floor if require_equity else None)
         except Exception as exc:
-            st.error(f"Optimization did not complete: {exc}")
+            st.error(f"CarbonWise could not generate a plan: {exc}")
             return
     previous = st.session_state.get("cw_latest_result")
     metrics = _portfolio_metrics(run_df, selected_ids)
@@ -436,17 +500,28 @@ def _run_optimizer(source):
     }
     st.session_state["cw_previous_result"] = previous
     st.session_state["cw_latest_result"] = result
-    st.success(f"NSGA-II completed: {metrics['projects']} projects selected within the {budget:,.4f} {result['cost_unit']} budget.")
-    st.caption(f"Pareto frontier: {len(front)} feasible non-dominated portfolios · 96 population × 100 generations · seed 7. Objective values retain the mapped benefit units. Equity is normalized 0–100 within this dataset.")
-    st.dataframe(result["comparison"].round(3), use_container_width=True, hide_index=True)
+    st.success(f"Plan generated: {metrics['projects']} projects fit within the {budget:,.4f} {result['cost_unit']} budget.")
+    st.caption("Benefits in this result come from the values and units in your file. The community score is scaled within the active dataset.")
+    comparison_display = result["comparison"].rename(columns={
+        "projects": "Projects selected", "cost": f"Total cost ({result['cost_unit']})",
+        "carbon": "Carbon benefit (input units)", "resilience": "Resilience benefit (input units)",
+        "equity_mean": "Average community score (0–100)", "equity_total": "Community score total",
+        "meets equity floor": "Meets score minimum", "within budget": "Within budget",
+    })
+    st.dataframe(comparison_display.round(3), use_container_width=True, hide_index=True)
+    st.markdown("#### What this plan means")
+    st.write(f"The selected plan includes **{metrics['projects']} projects** at a total cost of **{metrics['cost']:,.3f} {result['cost_unit']}**. Its projected benefits are sums of the mapped values in your file; they are estimates supplied by you, not measured outcomes.")
 
     fig = px.scatter(front, x="carbon_score", y="resilience_score", color="equity_score",
         size="n_projects", hover_data=["total_cost_cr", "selected_projects"],
         labels={"carbon_score":"Annual carbon benefit sum (input units)",
                 "resilience_score":"Resilience benefit sum (input units)",
-                "equity_score":"Equity score sum (normalized)", "total_cost_cr":f"Cost ({result['cost_unit']})"},
-        title="Feasible Pareto frontier · uploaded dataset")
+                "equity_score":"Community score total (dataset-relative)", "total_cost_cr":f"Cost ({result['cost_unit']})"},
+        title="Feasible plans with different benefit trade-offs")
     st.plotly_chart(fig, use_container_width=True)
+    with st.expander("How the plans were generated"):
+        floor_text = f" and minimum average community score of {floor}" if require_equity else ""
+        st.write(f"CarbonWise used the existing NSGA-II search on {len(df):,} validated rows, with a population of 96, 100 generations, and a fixed seed of 7. It filtered plans against your budget{floor_text}. The plotted points are feasible model alternatives, not forecasts or verified impacts.")
     st.markdown("#### Selected projects")
     selected = result["engine_df"][result["engine_df"]["project_id"].astype(str).isin(selected_ids)].copy()
     selected["selection"] = "Selected"
@@ -461,21 +536,21 @@ def _run_optimizer(source):
         "carbonwise_selected_projects_mapped.csv", "text/csv")
     st.download_button("Download original source rows (unchanged)",
         original_selected.to_csv(index=False).encode(), "carbonwise_selected_projects.csv", "text/csv")
-    st.download_button("Download Pareto frontier", front.to_csv(index=False).encode(), "carbonwise_pareto_front.csv", "text/csv")
+    st.download_button("Download alternative plans table", front.to_csv(index=False).encode(), "carbonwise_alternative_plans.csv", "text/csv")
     packet = _make_export_packet(result["source_frame"], result)
     st.download_button("Download complete run packet (.zip)", packet, "carbonwise_optimization_run.zip", "application/zip")
 
 
 def _digital_twin():
-    st.markdown("### 4 · What-If Digital Twin")
-    st.write("This is a counterfactual decision simulator over the active uploaded table. It is not a sensor-connected or physical simulation of Chennai.")
+    st.markdown("### 4 · Explore a what-if")
+    st.write("Compare how a changed budget, priority, or explicit assumption affects the plan for your active dataset. This is a decision scenario, not a sensor-connected model of Chennai.")
     current = st.session_state.get("cw_latest_result")
     previous = st.session_state.get("cw_previous_result")
     if current is None:
-        st.info("Run the uploaded-data optimizer first. Change budget, equity floor, objective preferences, or a confirmed-audit assumption, then run again to create a before/after comparison.")
+        st.info("Generate an investment plan first. Then change a budget, priority, or confirmed-audit assumption and generate another plan to see the comparison.")
         return
     if previous is None:
-        st.info("This is the first run in this session. Change one or more settings in Investment Optimization and run again; the next result will be compared with this one.")
+        st.info("This is the first plan in this session. Change a setting under **Compare investment plans** and generate another plan to compare it with this one.")
         return
     if current["model_input_sha256"] != previous["model_input_sha256"]:
         st.warning("The mapped project values changed between runs. This compares different input data as well as settings; interpret differences as a data-and-scenario comparison, not an isolated budget effect.")
@@ -523,7 +598,7 @@ def _digital_twin():
     if slices:
         chart_data = pd.concat(slices, ignore_index=True)
         chart_data["cost_unit"] = current["cost_unit"]
-        st.markdown("#### Allocation changes by category and ward/zone")
+        st.markdown("#### How proposed costs shift by project type and area")
         fig = px.bar(chart_data, x="group", y="cost", color="run", barmode="group", facet_row="dimension",
                      labels={"group":"Category or zone", "cost":f"Cost ({current['cost_unit']})"})
         st.plotly_chart(fig, use_container_width=True)
@@ -546,7 +621,7 @@ def _digital_twin():
 
 
 def _evidence_explorer(source):
-    st.markdown("### 5 · Evidence Explorer and Results")
+    st.markdown("### 5 · Review data and downloads")
     st.write("Inspect the active upload and all session-confirmed field audit notes. Official source registers remain in the separate Evidence Room.")
     if source is not None:
         st.success(f"Active input: {st.session_state.get('cw_source_name')} · hash `{st.session_state.get('cw_source_sha256','')}`")
@@ -556,7 +631,7 @@ def _evidence_explorer(source):
         st.info("No user dataset loaded. Select Evidence Room for the source-backed GCC and CMRL registers.")
     audits = st.session_state.get("cw_confirmed_audits", [])
     if audits:
-        st.markdown("#### User-confirmed visual street audit records")
+        st.markdown("#### Your saved Street View observations")
         st.dataframe(pd.DataFrame(audits), use_container_width=True, hide_index=True)
         st.download_button("Download visual audit packet with photos (.zip)", _make_audit_packet(audits), "carbonwise_visual_audit.zip", "application/zip")
     latest = st.session_state.get("cw_latest_result")
@@ -567,10 +642,10 @@ def _evidence_explorer(source):
 
 
 def render():
-    st.title("CarbonWise · Decision Studio")
-    st.caption("Upload your project records, inspect and map the data, then run multi-objective NSGA-II on those exact rows.")
-    st.info("The evidence room remains the source-backed GCC/CMRL workspace. This studio optimizes only the dataset named below. Synthetic sample values are labeled and never substituted silently.")
-    tabs = st.tabs(["Data Workspace", "Visual Street Audit", "Investment Optimization", "What-If Digital Twin", "Evidence Explorer & Results"])
+    st.title("Plan with your project data")
+    st.caption("Upload a file, review its planning fields, compare investment plans, and optionally attach a manually confirmed street observation.")
+    st.info("This workspace uses only the file shown below. Its practice CSV is invented example data. For sourced GCC and CMRL records, choose **Evidence Room · GCC records** in the sidebar.")
+    tabs = st.tabs(["Upload & prepare", "Street View Insights", "Compare plans", "What-if", "Review & download"])
     with tabs[0]:
         _data_workspace(st.session_state.get("cw_source_frame"))
     source = st.session_state.get("cw_source_frame")

@@ -2,16 +2,17 @@
 
 ## What the website is
 
-CarbonWise currently contains two distinct workspaces in one local Streamlit website:
+CarbonWise currently contains three distinct workspaces in one Streamlit website:
 
 1. **Evidence Room · GCC records** — the source-backed evidence interface. It uses the 23 project records from the supplied starter CSV, cross-references them to the official Greater Chennai Corporation (GCC) Climate Budget Report 2025–26, and shows three drainage tender references matched to Asian Development Bank (ADB) award records. It also reproduces five report calculations.
-2. **Scenario Lab · synthetic model** — the interactive multi-objective optimization demonstration. Its 56 candidate projects are generated benchmark records. Results are useful to demonstrate the method and interface, but are not real GCC funding recommendations or observed Chennai impacts.
+2. **Live Studio · your data** — upload and map your own CSV/Excel project file, compare plans on those mapped rows, and optionally add a manually confirmed Street View observation.
+3. **Scenario Lab · synthetic model** — an interactive planning demonstration. Its 56 candidate projects are generated benchmark records. Results are useful to demonstrate the method and interface, but are not real GCC funding recommendations or observed Chennai impacts.
 
 The website runs locally; it is a research prototype, not an official GCC service or a live sensor-connected digital twin.
 
 ## How to navigate
 
-Use the **WORKSPACE** selector in the sidebar. The default is Evidence Room. Its tabs are described below.
+Use the **Choose a workspace** selector in the sidebar. The default is Evidence Room. Each workspace has a short description at the top of its page.
 
 ### Evidence Room · GCC records
 
@@ -33,7 +34,7 @@ Filter the 23 rows by department. Each record links the supplied starter ID and 
 
 The separate **CMRL award records** tab adds 97 rows from the current Chennai Metro Rail Limited award listing. One tender reference is repeated in two distinct rows and is flagged for review. Treat each row as procurement evidence, not as a separate completed project. The listing does not establish payment, completion, measured carbon reduction, or equity outcomes. The methodology and field definitions are in `docs/cmrl_award_evidence.md`.
 
-The **Evidence index & audit** tab counts source documents separately from projects, withholds the unique-project count until a reviewed cross-source project map exists, and exposes filters, official source links, missing-field coverage, the duplicate-review queue, and source run results. Only evidence rows are shown here; synthetic model inputs remain in the Scenario Lab.
+The **Evidence library** tab counts source documents separately from projects, withholds the unique-project count until a reviewed cross-source project map exists, and exposes filters, official source links, missing-field coverage, the duplicate-review queue, and source run results. Only evidence rows are shown here; synthetic model inputs remain in the Scenario Lab.
 
 This table brings together three GCC tender references, official tender notice IDs, ADB award dates, contractors and USD award amounts. Tender estimate, actual expenditure, physical quantities and completion remain unknown in the available records. The ADB-financed share and total contract value are separate fields. Neither is converted into a GCC payment.
 
@@ -58,14 +59,20 @@ This is the short in-app tour and two-minute speaking script. It summarizes how 
 
 Choose this workspace in the sidebar to demonstrate the algorithm. Its inputs come from `data/raw/projects.csv` and `data/raw/wards.csv`, not the GCC starter evidence register. In particular, the project generator creates 56 benchmark candidates and the zone file contains 15 zone records. Their provenance/validation limits are described in the README and implementation audit.
 
-- **Budget & priorities:** set a hypothetical budget and adjust the three equity-score weights. The weights are normalized to add to one.
+- **Plan settings:** set a hypothetical budget and adjust how three sourced community indicators contribute to the composite project score. The weights are normalized to add to one.
 - **Data quality:** expand the sidebar panel to see basic input counts and missing-value checks. A technically clean table does not itself prove that its values describe real projects.
-- **Zone Profile:** inspect relative positions and zone vulnerability, deprivation and population fields. Those are context fields from the prototype; no project-to-zone assignment from the GCC evidence register is invented here.
-- **Candidate Projects:** filter the generated benchmark candidates and inspect their assigned zone, cost and model scores.
-- **Investment Analysis:** click **Run Optimizer** to create a Pareto set and select a balanced point. The page compares that selection with equal-split and greedy baselines, plots objectives, displays trade-off scenarios, provides rule-based council statements and an equity audit, and offers report/CSV downloads. Every output inherits the synthetic-input limitation.
+- **Explore areas:** inspect relative zone positions and area indicators. These are context fields from the prototype; no project-to-zone assignment from the GCC evidence register is invented here.
+- **Browse example projects:** filter generated candidates and inspect their assigned area, cost, and model scores.
+- **Compare plans:** select **Compare investment plans** in the sidebar. The page compares a balanced plan with equal-split and greedy baselines, shows other feasible plans, and offers report/CSV downloads. Every output inherits the synthetic-input limitation.
 - **Optional budget sensitivity:** the checkbox asks the model to repeat the analysis at alternate budgets; it is not a sensitivity analysis of verified GCC projects.
 
-The UI contains no live municipal feed. The label “digital twin” should be understood as a hypothetical scenario capability unless a live, validated data connection is added.
+### Live Studio · your data
+
+Choose **Live Studio · your data** to demonstrate the upload-to-result workflow with `data/demo/carbonwise_synthetic_demo.csv`, which contains invented values. Select **Load synthetic demo**, confirm the detected mapping under **Upload & prepare**, then open **Compare plans**, choose a budget, and select **Generate investment plan**. The result includes baselines, selected and excluded rows, alternative feasible plans, and downloads. Adjust a priority or budget and generate a second plan to compare changes under **What-if**.
+
+Under **Street View Insights**, upload a JPEG/PNG or capture a photo where browser permissions allow. The color-share estimate is based on HSV thresholds; it does not recognize trees, roads, flooding, safety, emissions, or community vulnerability. A user may select a project area only from the mapped uploaded data and must confirm their own observation. Without a mapped area, the observation remains unlinked. The image does not change the optimization inputs unless the user separately enters a resilience what-if assumption.
+
+The application contains no live municipal feed. Its **What-if** view compares model runs against the active uploaded table; it is not a physical or sensor-connected digital twin.
 
 ## Safe statements for a review
 

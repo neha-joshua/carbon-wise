@@ -62,6 +62,7 @@ def render_evidence_room():
     st.markdown("""
     <style>
       .stApp { background: #f4f6f2; }
+      .stApp, .stMarkdown, .stDataFrame, .stButton button { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
       [data-testid="stSidebar"] { background: #101c19; }
       [data-testid="stSidebar"] * { color: #eef3e9 !important; }
       .evidence-hero { background: radial-gradient(ellipse at 83% 0%, #315849 0%, #182b25 42%, #101c19 100%);
@@ -117,7 +118,7 @@ def render_evidence_room():
 
     st.markdown('<div class="status-band"><b>Evidence is now connected to the project ledger.</b> Every starter row is cross-referenced to its numbered GCC Climate Budget action and printed report page. Published quantities, project status and GHG calculations are shown with their scope. The scenario optimizer remains separate because these records do not share one validated carbon, resilience and geographic basis.</div>', unsafe_allow_html=True)
 
-    tab_overview, tab_projects, tab_tenders, tab_cmrl, tab_index, tab_checks, tab_method, tab_guide = st.tabs(["Overview", "GCC project evidence", "Drainage awards", "CMRL award records", "Evidence index & audit", "Calculation audit", "Causal evidence & methods", "Presenter guide"])
+    tab_overview, tab_projects, tab_tenders, tab_cmrl, tab_index, tab_checks, tab_method, tab_guide = st.tabs(["Overview", "GCC project evidence", "Drainage awards", "CMRL award records", "Evidence library", "Calculation check", "What the evidence can prove", "Walkthrough"])
     with tab_overview:
         st.markdown('<div class="section-kicker">01 / What the evidence can support</div><div class="section-heading">A useful dataset starts with honest boundaries.</div>', unsafe_allow_html=True)
         left, right = st.columns([1.05, .95], gap="large")
@@ -339,7 +340,7 @@ def render_evidence_room():
 
         **Presenter guide.** This page is the short tour and includes the language to use in a review. A longer speaker script is in `docs/presenter_walkthrough.md`.
 
-        **Scenario Lab · synthetic model.** Select it from the left workspace picker. Here you can change the budget and equity weights, inspect the 15 zone records and 56 generated benchmark projects, then click **Run Optimizer**. Its scores, Pareto frontier, baseline comparisons, scenarios, council statements and equity audit are demonstrations using generated data. They are not actual GCC project recommendations or measured Chennai outcomes. The optional budget sensitivity is also a synthetic-model analysis. Downloaded investment reports inherit that limitation.
+        **Scenario Lab · synthetic model.** Choose it from the sidebar. Set a budget and how strongly the community-score inputs should count, explore the 15 area records and 56 generated example projects, then select **Compare investment plans**. Its scores, plan comparisons and distribution checks use generated data. They are not actual GCC recommendations or measured Chennai outcomes. Downloaded reports carry the same limitation.
 
         **Best one-sentence description:** “CarbonWise is a prototype with a source-backed GCC evidence register and tender cross-check, plus a separate synthetic multi-objective optimizer demonstrating how carbon, resilience and equity trade-offs could be explored once comparable, verified project inputs are available.”
 
@@ -350,13 +351,13 @@ def render_evidence_room():
 # Page config + restrained, professional styling (no gradients, no emoji soup)
 # ---------------------------------------------------------------------------
 st.set_page_config(page_title="CarbonWise", layout="wide",
-                    initial_sidebar_state="collapsed", page_icon="◆")
+                    initial_sidebar_state="expanded", page_icon="◆")
 
 app_mode = st.sidebar.radio(
-    "WORKSPACE",
+    "Choose a workspace",
     ["Evidence Room · GCC records", "Live Studio · your data", "Scenario Lab · synthetic model"],
     index=0,
-    help="Evidence Room shows official-source records. Live Studio maps CSV/Excel you provide into the NSGA-II optimizer and supports a user-confirmed photo audit. Scenario Lab uses generated benchmark projects.",
+    help="Evidence Room lets you trace source-backed records. Live Studio analyzes a dataset you provide. Scenario Lab is a practice run with generated example projects.",
 )
 if app_mode == "Evidence Room · GCC records":
     render_evidence_room()
@@ -376,12 +377,12 @@ CARD_BG = "#FBFCFB"
 st.markdown(f"""
 <style>
     html, body, .stApp {{
-        font-family: "Times New Roman", Times, serif;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }}
     p, span, li, td, th, label, h1, h2, h3, h4, h5, h6,
     .stMarkdown, .stDataFrame, .stButton button, .stSelectbox div, .stRadio label,
     .stTextInput input, .stNumberInput input, .stSlider label, .stCaption {{
-        font-family: "Times New Roman", Times, serif;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }}
     [data-testid="stIconMaterial"], [class*="Icon"], .material-icons,
     [data-testid="stExpanderToggleIcon"] {{
@@ -395,7 +396,7 @@ st.markdown(f"""
     .cw-rule {{ border: none; border-top: 2px solid {FOREST}; width: 64px; margin: 10px 0 20px 0; }}
 
     .cw-tile {{
-        background: {CARD_BG}; border: 1px solid {LINE}; border-radius: 6px;
+        background: {CARD_BG}; border: 1px solid {LINE}; border-radius: 12px;
         padding: 14px 18px; margin-bottom: 10px;
     }}
     .cw-tile-label {{ font-size: 11px; color: {MUTED}; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 4px; }}
@@ -425,32 +426,33 @@ st.markdown(f"""
 
 st.markdown(f"""
 <div class="cw-title">CarbonWise</div>
-<div class="cw-subtitle">Cross-sector infrastructure investment platform — solar, transit, EV charging, drainage, green corridors, flood defenses & building retrofits — unified under equity-aware multi-objective optimisation. Chennai pilot.</div>
+<div class="cw-subtitle">Explore how infrastructure investment choices can balance carbon, resilience, and community priorities. This practice workspace uses generated Chennai-style examples.</div>
 <hr class="cw-rule"/>
 """, unsafe_allow_html=True)
-st.warning(
-    "SYNTHETIC SCENARIO LAB: the optimizer below uses generated benchmark-range projects, "
-    "not the GCC starter or verified tender packages. The real-data evidence room has 0 "
-    "model-ready starter records. Any displayed scores are hypothetical model outputs, "
-    "not observed Chennai outcomes or funding recommendations."
-)
+st.info("Practice data: the projects and estimated benefits in this workspace are generated examples, not verified GCC project recommendations or measured Chennai outcomes. Use **Evidence Room · GCC records** for sourced records or **Live Studio · your data** to analyze a file you provide.")
 
 # ---------------------------------------------------------------------------
 # Sidebar
 # ---------------------------------------------------------------------------
-st.sidebar.markdown("**Budget & Priorities**")
+st.sidebar.markdown("### Plan settings")
 budget_cr = st.sidebar.number_input("Available budget (₹ crore)", min_value=5.0,
-                                     max_value=500.0, value=50.0, step=5.0)
+                                     max_value=500.0, value=50.0, step=5.0,
+                                     help="A planning limit applied to the generated example projects. It is not an actual city allocation.")
 
-st.sidebar.markdown("**Equity metric weights**")
-w1 = st.sidebar.slider("Vulnerability", 0.0, 1.0, 0.33)
-w2 = st.sidebar.slider("Population benefited", 0.0, 1.0, 0.33)
-w3 = st.sidebar.slider("Infrastructure deprivation", 0.0, 1.0, 0.34)
+st.sidebar.markdown("**Community benefit score priorities**")
+st.sidebar.caption("Adjust how three inputs contribute to the project-level composite score. This score is a planning proxy, not proof of real-world impact.")
+w1 = st.sidebar.slider("Community vulnerability indicator", 0.0, 1.0, 0.33,
+                       help="Weights the zone-level vulnerability indicator used in the project score.")
+w2 = st.sidebar.slider("Population a project may serve", 0.0, 1.0, 0.33,
+                       help="Weights the modelled share of the zone population listed as benefiting.")
+w3 = st.sidebar.slider("Infrastructure service-gap indicator", 0.0, 1.0, 0.34,
+                       help="Weights the zone-level infrastructure-deprivation indicator.")
 total_w = w1 + w2 + w3
 w1, w2, w3 = (w1/total_w, w2/total_w, w3/total_w) if total_w else (1/3, 1/3, 1/3)
 
-run_button = st.sidebar.button("Run Optimizer", type="primary", use_container_width=True)
-run_sensitivity_btn = st.sidebar.checkbox("Also run budget sensitivity analysis (~10s extra)", value=False)
+run_button = st.sidebar.button("Compare investment plans", type="primary", use_container_width=True,
+                               help="Builds one set of feasible plans using the generated example project table.")
+run_sensitivity_btn = st.sidebar.checkbox("Also test 5 budget levels (takes longer)", value=False)
 
 st.sidebar.markdown("---")
 st.sidebar.markdown("**Data sources**")
@@ -478,7 +480,8 @@ df, wards = load_data(w1, w2, w3)
 # Infrastructure category overview -- makes the cross-sector scope of the
 # platform immediately visible, rather than buried in a data table
 # ---------------------------------------------------------------------------
-st.markdown("**Infrastructure categories evaluated**")
+st.markdown("### Example projects by type")
+st.caption("Counts and candidate costs come from the generated practice table; they are not approved budgets or actual spending.")
 _cat_summary = df.groupby("category").agg(
     n_projects=("project_id", "count"),
     total_cost=("cost_cr_inr", "sum"),
@@ -497,7 +500,7 @@ for i, (_, row) in enumerate(_cat_summary.iterrows()):
 
 st.markdown("---")
 
-tab_map, tab_data, tab_results = st.tabs(["Zone Profile", "Candidate Projects", "Investment Analysis"])
+tab_map, tab_data, tab_results = st.tabs(["Explore areas", "Browse example projects", "Compare plans"])
 
 # ---------------------------------------------------------------------------
 # Data validation report (sidebar) -- shown before any optimization runs,
@@ -505,7 +508,7 @@ tab_map, tab_data, tab_results = st.tabs(["Zone Profile", "Candidate Projects", 
 # ---------------------------------------------------------------------------
 _validation = validate_data(df, wards)
 with st.sidebar.expander(
-    f"Data quality: {'Ready' if _validation['status'] == 'READY' else 'Issues found'}",
+    f"Sample data check: {'Ready' if _validation['status'] == 'READY' else 'Issues found'}",
     expanded=False
 ):
     st.markdown(f"""
@@ -524,6 +527,8 @@ with st.sidebar.expander(
 # TAB 1: Zone map / profile
 # ---------------------------------------------------------------------------
 with tab_map:
+    st.markdown("#### Planning-area overview")
+    st.caption("Compare the zone indicators included in this sample. They describe source measures used by the demo, not a complete assessment of community needs.")
     col_map, col_detail = st.columns([2, 1])
 
     with col_map:
@@ -553,21 +558,21 @@ with tab_map:
 
 
     with col_detail:
-        st.markdown("**Zone inspector**")
-        selected_zone = st.selectbox("Select a zone", wards["zone_name"].tolist(), label_visibility="collapsed")
+        st.markdown("**Explore one area**")
+        selected_zone = st.selectbox("Planning area", wards["zone_name"].tolist())
         zrow = wards[wards["zone_name"] == selected_zone].iloc[0]
 
         st.markdown(f"""
-        <div class="cw-tile"><div class="cw-tile-label">Vulnerability Index</div>
+        <div class="cw-tile"><div class="cw-tile-label">Community vulnerability indicator</div>
             <div class="cw-tile-value">{zrow['vulnerability_index']:.2f}</div></div>
-        <div class="cw-tile"><div class="cw-tile-label">Infrastructure Deprivation</div>
+        <div class="cw-tile"><div class="cw-tile-label">Infrastructure service-gap indicator</div>
             <div class="cw-tile-value">{zrow['infrastructure_deprivation_index']:.2f}</div></div>
         <div class="cw-tile"><div class="cw-tile-label">Population (2023 est.)</div>
             <div class="cw-tile-value">{zrow['approx_population_2023']:,}</div></div>
         """, unsafe_allow_html=True)
 
         n_candidate_projects = len(df[df["zone_id"] == zrow["zone_id"]])
-        st.markdown(f"**Candidate projects in zone:** {n_candidate_projects}")
+        st.markdown(f"**Example projects listed for this area:** {n_candidate_projects}")
         st.markdown(f'<div class="cw-source">Source: {zrow["data_source"]}<br>{zrow["notes"]}</div>',
                      unsafe_allow_html=True)
 
@@ -575,6 +580,8 @@ with tab_map:
 # TAB 2: Candidate projects table
 # ---------------------------------------------------------------------------
 with tab_data:
+    st.markdown("#### Browse the practice project list")
+    st.caption("These are generated candidates with benchmark-based inputs. Their presence does not mean they have been proposed, funded, or completed.")
     fig_cat = go.Figure(go.Bar(
         x=_cat_summary["total_cost"], y=_cat_summary["category"],
         orientation="h", marker_color=FOREST,
@@ -586,13 +593,13 @@ with tab_data:
                            plot_bgcolor="white")
     st.plotly_chart(fig_cat, use_container_width=True)
 
-    st.markdown("**Filter by category**")
+    st.markdown("**Filter projects by type**")
     selected_categories = st.multiselect(
         "Category", options=sorted(df["category"].unique()),
         default=sorted(df["category"].unique()), label_visibility="collapsed"
     )
 
-    st.markdown("**Candidate infrastructure projects**")
+    st.markdown("**Example projects**")
     filtered_df = df[df["category"].isin(selected_categories)] if selected_categories else df
     st.dataframe(
         filtered_df[["project_id", "project_name", "category", "zone_name",
@@ -608,9 +615,9 @@ with tab_data:
 # ---------------------------------------------------------------------------
 with tab_results:
     if not run_button:
-        st.info("Set your budget and priority weights in the sidebar, then click **Run Optimizer**.")
+        st.info("Set the budget and community-score priorities in the sidebar, then select **Compare investment plans**.")
     else:
-        with st.spinner("Solving multi-objective portfolio selection (NSGA-II)..."):
+        with st.spinner("Comparing feasible investment plans…"):
             res, problem = run_nsga2(df, budget_cr)
             front_df = pareto_front_to_df(res, problem, df)
             balanced = pick_balanced_solution(front_df)
@@ -633,9 +640,9 @@ with tab_results:
         # --- KPI tiles ---
         c1, c2, c3, c4 = st.columns(4)
         for col, label, val, ctx in [
-            (c1, "Carbon Score", f"{balanced['carbon_score']:.0f}", "sum across funded projects"),
-            (c2, "Resilience Score", f"{balanced['resilience_score']:.0f}", "sum across funded projects"),
-            (c3, "Equity Score", f"{balanced['equity_score']:.0f}", "sum across funded projects"),
+            (c1, "Carbon benefit score", f"{balanced['carbon_score']:.0f}", "modelled sum for selected examples"),
+            (c2, "Resilience benefit score", f"{balanced['resilience_score']:.0f}", "modelled sum for selected examples"),
+            (c3, "Community benefit score", f"{balanced['equity_score']:.0f}", "composite planning proxy for selected examples"),
             (c4, "Budget Utilised", f"{balanced['total_cost_cr']/budget_cr*100:.0f}%",
              f"₹{balanced['total_cost_cr']:.1f} cr of ₹{budget_cr:.0f} cr"),
         ]:
@@ -646,7 +653,7 @@ with tab_results:
         st.markdown("---")
 
         # --- Why this portfolio: structured decision rationale ---
-        st.markdown("#### Why this portfolio?")
+        st.markdown("#### Why was this plan selected?")
         rationale = build_rationale(front_df, balanced, budget_cr, audit)
         for i, point in enumerate(rationale, 1):
             st.markdown(f'<div class="cw-finding"><b>{i}. {point["title"]}.</b> {point["detail"]}</div>',
@@ -654,7 +661,7 @@ with tab_results:
 
         st.markdown("---")
 
-        st.markdown("#### Comparison against conventional allocation methods")
+        st.markdown("#### Compare with two simple allocation approaches")
         fig_comp = go.Figure()
         for metric, color in zip(["carbon_score", "resilience_score", "equity_score"],
                                    [FOREST, "#3D6B8C", GOLD]):
@@ -667,8 +674,8 @@ with tab_results:
         st.markdown("---")
 
         # --- Scenario simulator ---
-        st.markdown("#### Scenario comparison")
-        st.caption("Four trade-off points drawn from the same Pareto front — not independently re-optimized runs.")
+        st.markdown("#### Compare four planning options")
+        st.caption("These options are selected from the same set of feasible plans. Each emphasizes a different modelled benefit; none is a separate forecast.")
         fig_scen = go.Figure()
         for metric, color in zip(["carbon_score", "resilience_score", "equity_score"],
                                    [FOREST, "#3D6B8C", GOLD]):
@@ -686,9 +693,7 @@ with tab_results:
         # --- Findings + Pareto front ---
         col_findings, col_pareto = st.columns([1, 1])
         with col_findings:
-            st.markdown("#### Key findings")
-            ai_status = "AI explanation: enabled" if llm_client.is_available() else "AI explanation: not configured (using rule-based analysis)"
-            st.caption(ai_status)
+            st.markdown("#### What stands out")
 
             context = {
                 "budget_cr": budget_cr,
@@ -703,18 +708,19 @@ with tab_results:
             explanation = generate_explanation(context, comparison, budget_cr)
             st.markdown(f'<div class="cw-finding">{explanation["text"]}</div>', unsafe_allow_html=True)
             if explanation["source"] == "llm":
-                st.caption("Generated by LLM from verified optimizer output.")
+                st.caption("AI-generated explanation based on this model run. Review it against the data and limitations shown here.")
             elif explanation["error"]:
                 st.caption(f"Note: {explanation['error']}")
 
-            with st.expander("Per-agent breakdown"):
+            with st.expander("How the plan was reviewed"):
                 for entry in council:
                     label = entry["agent"]
                     st.markdown(f'<div class="cw-finding"><b>{label}.</b> {entry["statement"]}</div>',
                                  unsafe_allow_html=True)
 
         with col_pareto:
-            st.markdown("#### Pareto-optimal trade-off frontier")
+            st.markdown("#### Plans that balance different goals")
+            st.caption("Each dot is a feasible plan from the model search. Moving across the chart shows trade-offs between carbon and resilience scores; colour shows the composite community score.")
             fig_pareto = px.scatter(front_df, x="carbon_score", y="resilience_score",
                                      color="equity_score", color_continuous_scale="Viridis",
                                      hover_data={"n_projects": True, "total_cost_cr": ":.1f",
@@ -739,10 +745,8 @@ with tab_results:
         st.markdown("---")
 
         # --- Equity Audit ---
-        st.markdown("#### Distributive equity audit")
-        st.caption("Share of total investment reaching Chennai's high-vulnerability zones, "
-                   "benchmarked against a population-proportional target based on Chennai "
-                   "residents living in zones classified as high-vulnerability (Justice40-style metric).")
+        st.markdown("#### Where the example investment goes")
+        st.caption("Compares the share of modeled investment in zones labelled high vulnerability with a population-share benchmark. This is a distribution check, not proof of fair outcomes.")
         col_before, col_after = st.columns(2)
         with col_before:
             st.markdown(f"""

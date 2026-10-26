@@ -17,7 +17,7 @@ CarbonWise is a Streamlit app and uses Streamlit's persistent interactive connec
 2. Open [Streamlit Community Cloud](https://share.streamlit.io/) and sign in with GitHub.
 3. Select **Create app**, then choose repository `neha-joshua/carbon-wise`, branch `main`, and main file path `dashboard/app.py`.
 4. In **Advanced settings**, select Python 3.12 (the Community Cloud default in the current documentation) and deploy.
-5. Wait for the install/startup health check. Open the generated `*.streamlit.app` URL and check Evidence Room plus all five Live Studio tabs. Test uploads with non-confidential sample data.
+5. Wait for the install/startup health check. Open the generated `*.streamlit.app` URL and check the Evidence Room, the Scenario Lab, and the five Live Studio tabs. Test uploads with non-confidential sample data.
 6. In the app settings, set public/private sharing as intended. Community Cloud's sharing settings control viewer access.
 
 A successful GitHub commit alone does not mean the Streamlit app is deployed. Do not claim a public URL until the cloud health check finishes and the URL opens in a separate browser session.
@@ -33,4 +33,4 @@ python -m pip install -r requirements.txt
 python -m streamlit run dashboard/app.py
 ```
 
-Then open the `Local URL` Streamlit prints (usually `http://localhost:8501`). In Live Studio, click **Load synthetic demo**, map the detected fields, then run Investment Optimization. The app explicitly warns that those example rows are invented.
+Then open the `Local URL` Streamlit prints (usually `http://localhost:8501`). In Live Studio, click **Load synthetic demo**, confirm the detected fields under **Upload & prepare**, then open **Compare plans** and select **Generate investment plan**. The app labels those example rows as invented practice data.
