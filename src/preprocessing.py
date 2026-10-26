@@ -1,8 +1,7 @@
 """
 preprocessing.py
-Loads raw projects.csv + wards.csv, joins them, handles missing values,
-and produces a single clean processed dataset used by every downstream
-scoring/optimization module.
+Loads raw projects.csv + zones.csv, joins them, preserves missing numeric
+inputs for validation, and produces the processed dataset used by the model.
 """
 import pandas as pd
 import numpy as np
@@ -22,21 +21,22 @@ def normalize_column(series: pd.Series) -> pd.Series:
     """Min-max normalize a column to [0, 100]."""
     lo, hi = series.min(), series.max()
     if hi == lo:
-        return pd.Series(50.0, index=series.index)
+        # A constant observed column gets a neutral score, but unknown inputs
+        # must remain unknown so validation can stop the optimizer.
+        return pd.Series(50.0, index=series.index).where(series.notna())
     return 100 * (series - lo) / (hi - lo)
 
 
 def preprocess() -> pd.DataFrame:
     projects, wards = load_raw()
 
-    # 1. missing-value handling: any numeric NaNs get median-imputed,
-    #    any categorical NaNs get "Unknown"
+    # Keep missing numeric inputs missing so validation can block an unsafe
+    # optimization. A missing benefit is unknown, not a median estimate.
     numeric_cols = projects.select_dtypes(include=[np.number]).columns
-    projects[numeric_cols] = projects[numeric_cols].fillna(projects[numeric_cols].median())
     cat_cols = projects.columns.difference(numeric_cols)
     projects[cat_cols] = projects[cat_cols].fillna("Unknown")
 
-    # 2. join ward-level vulnerability context onto each project
+    # 2. join GCC zone context onto each sample project
     merged = projects.merge(
         wards[["zone_id", "vulnerability_index", "infrastructure_deprivation_index",
                "approx_population_2023"]],
