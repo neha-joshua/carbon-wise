@@ -3,6 +3,7 @@ CarbonWise — Chennai Infrastructure Investment Decision Support
 Run with: streamlit run app.py   (from inside the dashboard/ folder)
 """
 import sys, os
+import json
 from pathlib import Path
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "src"))
 
@@ -42,15 +43,21 @@ def load_evidence_data():
     tenders = pd.read_csv(PROJECT_ROOT / "data/tenders/chennai_drainage_tender_packages.csv")
     evidence = pd.read_csv(PROJECT_ROOT / "data/evidence/gcc_climate_budget_evidence.csv", keep_default_na=False)
     cmrl_awards = pd.read_csv(PROJECT_ROOT / "data/evidence/cmrl_awarded_tenders.csv", keep_default_na=False)
+    evidence_index = pd.read_csv(PROJECT_ROOT / "data/evidence/normalized_evidence_index.csv", keep_default_na=False)
+    duplicate_review = pd.read_csv(PROJECT_ROOT / "data/evidence/duplicate_review.csv", keep_default_na=False)
+    with (PROJECT_ROOT / "data/evidence/audit_summary.json").open(encoding="utf-8") as handle:
+        evidence_audit = json.load(handle)
+    source_runs = pd.read_csv(PROJECT_ROOT / "data/collection/source_run_log.csv", keep_default_na=False)
+    source_documents = pd.read_csv(PROJECT_ROOT / "data/collection/source_documents.csv", keep_default_na=False)
     checks = pd.read_csv(PROJECT_ROOT / "results/evidence/gcc_report_calculation_checks.csv", keep_default_na=False)
     snapshots = sorted((PROJECT_ROOT / "data/derived").glob("*/validation_issues.csv"))
     issues_path = snapshots[-1] if snapshots else None
     issues = pd.read_csv(issues_path) if issues_path else pd.DataFrame()
-    return projects, tenders, issues, evidence, checks, cmrl_awards
+    return projects, tenders, issues, evidence, checks, cmrl_awards, evidence_index, duplicate_review, evidence_audit, source_runs, source_documents
 
 
 def render_evidence_room():
-    projects, tenders, issues, evidence, checks, cmrl_awards = load_evidence_data()
+    projects, tenders, issues, evidence, checks, cmrl_awards, evidence_index, duplicate_review, evidence_audit, source_runs, source_documents = load_evidence_data()
     st.markdown("""
     <style>
       .stApp { background: #f4f6f2; }
@@ -109,7 +116,7 @@ def render_evidence_room():
 
     st.markdown('<div class="status-band"><b>Evidence is now connected to the project ledger.</b> Every starter row is cross-referenced to its numbered GCC Climate Budget action and printed report page. Published quantities, project status and GHG calculations are shown with their scope. The scenario optimizer remains separate because these records do not share one validated carbon, resilience and geographic basis.</div>', unsafe_allow_html=True)
 
-    tab_overview, tab_projects, tab_tenders, tab_cmrl, tab_checks, tab_method, tab_guide = st.tabs(["Overview", "GCC project evidence", "Drainage awards", "CMRL award records", "Calculation audit", "Causal evidence & methods", "Presenter guide"])
+    tab_overview, tab_projects, tab_tenders, tab_cmrl, tab_index, tab_checks, tab_method, tab_guide = st.tabs(["Overview", "GCC project evidence", "Drainage awards", "CMRL award records", "Evidence index & audit", "Calculation audit", "Causal evidence & methods", "Presenter guide"])
     with tab_overview:
         st.markdown('<div class="section-kicker">01 / What the evidence can support</div><div class="section-heading">A useful dataset starts with honest boundaries.</div>', unsafe_allow_html=True)
         left, right = st.columns([1.05, .95], gap="large")
@@ -178,11 +185,102 @@ def render_evidence_room():
     with tab_cmrl:
         st.markdown('<div class="section-kicker">CHENNAI METRO RAIL LIMITED / PRIMARY-SOURCE PROCUREMENT</div><div class="section-heading">Award records beyond the GCC starter list</div>', unsafe_allow_html=True)
         st.caption(f"{len(cmrl_awards)} tender and consultancy award records from CMRL's official awarded-tenders listing. Each row is a procurement record, not a separately validated completed project. Contract awards are not actual expenditure; the source does not establish completion, measured GHG reductions, or population-level equity outcomes.")
-        cmrl_view = cmrl_awards[["evidence_id", "tender_reference", "work_title", "department_or_agency", "location_as_published", "record_type", "tender_notice_date_as_published", "award_date_as_published", "contractor", "awarded_value_as_published", "tax_basis_as_published", "award_status", "climate_relevance", "equity_relevance", "completion_status", "actual_expenditure", "primary_source_url", "interpretation_note"]].copy()
-        cmrl_view = cmrl_view.rename(columns={"evidence_id":"Evidence ID", "tender_reference":"Tender reference", "work_title":"Work title (summary)", "department_or_agency":"Agency", "location_as_published":"Location as published", "record_type":"Record type", "tender_notice_date_as_published":"Notice date (source format)", "award_date_as_published":"Award date (source format)", "contractor":"Awarded contractor", "awarded_value_as_published":"Award value (source text)", "tax_basis_as_published":"Tax basis (source text)", "award_status":"Source status", "climate_relevance":"Climate evidence", "equity_relevance":"Equity evidence", "completion_status":"Completion evidence", "actual_expenditure":"Actual expenditure", "primary_source_url":"Official source", "interpretation_note":"Scope note"})
+        cmrl_view = cmrl_awards[["evidence_id", "tender_reference", "work_title", "department", "tender_mode_as_published", "department_or_agency", "record_type", "tender_notice_date_as_published", "award_date_as_published", "contractor", "awarded_value_as_published", "award_value_field_heading", "currency_as_published", "value_unit_as_published", "tax_basis_as_published", "award_status", "climate_relevance", "equity_relevance", "completion_status", "actual_expenditure", "primary_source_url", "source_retrieved_at", "source_content_sha256", "interpretation_note"]].copy()
+        cmrl_view = cmrl_view.rename(columns={"evidence_id":"Evidence ID", "tender_reference":"Tender reference", "work_title":"Work title (exact CMRL text)", "department":"Department", "tender_mode_as_published":"Tender mode as published", "department_or_agency":"Agency", "record_type":"Record type", "tender_notice_date_as_published":"Notice date (source format)", "award_date_as_published":"Award date (source format)", "contractor":"Awarded contractor", "awarded_value_as_published":"Award value (source text)", "award_value_field_heading":"Award value column heading", "currency_as_published":"Currency explicitly stated", "value_unit_as_published":"Unit as stated", "tax_basis_as_published":"Tax basis note", "award_status":"Source status", "climate_relevance":"Climate evidence", "equity_relevance":"Equity evidence", "completion_status":"Completion evidence", "actual_expenditure":"Actual expenditure", "primary_source_url":"Official source", "source_retrieved_at":"Retrieved UTC", "source_content_sha256":"Page SHA-256", "interpretation_note":"Scope note"})
         st.dataframe(cmrl_view, use_container_width=True, hide_index=True, height=560, column_config={"Official source": st.column_config.LinkColumn()})
         st.link_button("Open CMRL's official awarded-tenders listing ↗", "https://chennaimetrorail.org/awarded-tenders/", use_container_width=False)
         st.download_button("Download CMRL award evidence (CSV)", cmrl_awards.to_csv(index=False).encode("utf-8"), "carbonwise_cmrl_award_evidence.csv", "text/csv")
+
+    with tab_index:
+        st.markdown('<div class="section-kicker">PROVENANCE / DOCUMENT-LEVEL INDEX</div><div class="section-heading">Count evidence documents separately from projects.</div>', unsafe_allow_html=True)
+        c1, c2, c3, c4 = st.columns(4)
+        with c1:
+            st.metric("Evidence documents", f"{len(evidence_index):,}")
+        with c2:
+            st.metric("Unique projects", "Not established")
+        with c3:
+            linked_id_count = evidence_index.loc[evidence_index["project_id"].astype(str).str.strip().ne(""), "project_id"].nunique()
+            st.metric("Distinct linked IDs", f"{linked_id_count:,}")
+        with c4:
+            st.metric("Pending verification", f"{evidence_index['verification_tier'].str.contains('pending', case=False).sum():,}")
+        st.caption("A project count is withheld because GCC activity IDs, drainage tender packages, and CMRL award rows do not have a shared, reviewed project crosswalk. A distinct ID count is not a deduplicated project count. ‘Verified’ below means the source record is present in an official listing; it does not verify completion, payment, or outcomes.")
+
+        verified_count = evidence_index["verification_tier"].eq("verified_official_procurement_record_only").sum()
+        partial_count = evidence_index["verification_tier"].str.contains("partially", case=False).sum()
+        pending_count = evidence_index["verification_tier"].str.contains("pending", case=False).sum()
+        status_cols = st.columns(3)
+        status_cols[0].metric("Official source record located", f"{verified_count:,}")
+        status_cols[1].metric("Partially verified / source claim", f"{partial_count:,}")
+        status_cols[2].metric("Pending manual verification", f"{pending_count:,}")
+
+        left, right = st.columns(2, gap="large")
+        with left:
+            source_counts = evidence_index.groupby("source_type", dropna=False).size().sort_values().reset_index(name="documents")
+            fig = px.bar(source_counts, x="documents", y="source_type", orientation="h", text="documents", title="Documents by source type", color="documents", color_continuous_scale=["#b9cc9a", "#244d3b"])
+            fig.update_layout(height=330, showlegend=False, coloraxis_showscale=False, margin=dict(l=0, r=10, t=45, b=5))
+            st.plotly_chart(fig, use_container_width=True)
+        with right:
+            agency_counts = evidence_index.groupby("agency", dropna=False).size().sort_values().reset_index(name="documents")
+            fig = px.bar(agency_counts, x="documents", y="agency", orientation="h", text="documents", title="Documents by agency", color="documents", color_continuous_scale=["#b9cc9a", "#244d3b"])
+            fig.update_layout(height=330, showlegend=False, coloraxis_showscale=False, margin=dict(l=0, r=10, t=45, b=5))
+            st.plotly_chart(fig, use_container_width=True)
+
+        status_counts = evidence_index["status_normalized"].replace("", "Not normalized").value_counts().rename_axis("Status (normalized)").reset_index(name="Documents")
+        category_counts = evidence_index["intervention_category"].replace("", "Not classified").value_counts().rename_axis("Source category").reset_index(name="Documents")
+        location_counts = evidence_index["location_as_published"].replace("", "Not stated").value_counts().rename_axis("Location as published").reset_index(name="Documents")
+        source_coverage, status_coverage = st.columns(2, gap="large")
+        with source_coverage:
+            st.markdown("**Source category coverage**")
+            st.dataframe(category_counts, use_container_width=True, hide_index=True)
+        with status_coverage:
+            st.markdown("**Reported status coverage**")
+            st.dataframe(status_counts, use_container_width=True, hide_index=True)
+        st.markdown("**Location coverage (source wording only)**")
+        st.dataframe(location_counts, use_container_width=True, hide_index=True)
+
+        fields_to_check = ["primary_source_url", "location_as_published", "reported_value_original_text", "actual_expenditure_as_published", "project_status_as_published", "physical_progress_as_published", "ghg_value_as_published", "equity_relevance_evidence", "source_retrieved_at"]
+        coverage = pd.DataFrame({"Field": fields_to_check, "Records populated": [evidence_index[f].astype(str).str.strip().ne("").sum() for f in fields_to_check], "Total documents": len(evidence_index)})
+        coverage["Missing"] = coverage["Total documents"] - coverage["Records populated"]
+        st.markdown("**Missing-data coverage**")
+        st.dataframe(coverage, use_container_width=True, hide_index=True)
+
+        source_values = sorted(evidence_index["source_type"].dropna().unique())
+        agency_values = sorted(evidence_index["agency"].dropna().unique())
+        category_values = sorted(evidence_index["intervention_category"].replace("", "Not classified").unique())
+        selected_sources = st.multiselect("Filter source type", source_values, default=source_values, key="ev_source_filter")
+        selected_agencies = st.multiselect("Filter agency", agency_values, default=agency_values, key="ev_agency_filter")
+        selected_categories = st.multiselect("Filter category", category_values, default=category_values, key="ev_category_filter")
+        search = st.text_input("Search evidence ID, reference, title, location, or department", key="ev_search").strip().casefold()
+        view = evidence_index[
+            evidence_index["source_type"].isin(selected_sources)
+            & evidence_index["agency"].isin(selected_agencies)
+            & evidence_index["intervention_category"].replace("", "Not classified").isin(selected_categories)
+        ].copy()
+        if search:
+            search_fields = ["evidence_id", "source_record_id", "tender_reference", "project_title", "exact_source_title", "location_as_published", "department"]
+            mask = view[search_fields].astype(str).apply(lambda col: col.str.casefold().str.contains(search, regex=False)).any(axis=1)
+            view = view[mask]
+        table_fields = ["evidence_id", "project_id", "associated_evidence_ids", "source_type", "project_title", "exact_source_title", "agency", "department", "intervention_category", "location_as_published", "tender_reference", "project_status_as_published", "status_normalized", "publication_date_as_published", "award_date_as_published", "reported_value_original_text", "actual_expenditure_as_published", "currency", "value_unit", "source_value_field_heading", "tax_basis_as_published", "physical_progress_as_published", "ghg_value_as_published", "ghg_unit", "verification_tier", "optimization_eligibility", "optimization_exclusion_reason", "primary_source_url", "source_retrieved_at", "limitations"]
+        st.caption(f"Showing {len(view):,} of {len(evidence_index):,} evidence documents. All records remain contextual evidence only and are excluded from the real-project optimizer until compatible validated inputs and project links exist.")
+        st.dataframe(view[table_fields], use_container_width=True, hide_index=True, height=520, column_config={"primary_source_url": st.column_config.LinkColumn()})
+        st.download_button("Download filtered index with full provenance", view.to_csv(index=False).encode("utf-8"), "carbonwise_filtered_evidence_index.csv", "text/csv")
+
+        with st.expander(f"Duplicate and cross-source review queue ({len(duplicate_review)} pairs)"):
+            if duplicate_review.empty:
+                st.success("No ambiguous matches are currently flagged. Exact cross-source links remain in the index as separate documents.")
+            else:
+                st.dataframe(duplicate_review, use_container_width=True, hide_index=True)
+            st.download_button("Download duplicate-review queue", duplicate_review.to_csv(index=False).encode("utf-8"), "carbonwise_duplicate_review.csv", "text/csv")
+        with st.expander("Source collection history and access limitations"):
+            st.markdown("**Official source document links for manual follow-up**")
+            document_search = st.text_input("Search bulletin or annual-report links", key="source_doc_search").strip().casefold()
+            source_doc_view = source_documents.copy()
+            if document_search:
+                document_mask = source_doc_view.astype(str).apply(lambda col: col.str.casefold().str.contains(document_search, regex=False)).any(axis=1)
+                source_doc_view = source_doc_view[document_mask]
+            st.dataframe(source_doc_view, use_container_width=True, hide_index=True, height=300, column_config={"document_url": st.column_config.LinkColumn(), "primary_source_page": st.column_config.LinkColumn()})
+            st.dataframe(source_runs.sort_values("retrieved_at_utc", ascending=False), use_container_width=True, hide_index=True)
+            st.caption("Bulletin and annual-report links are source-document inventory, not project evidence rows. Interactive GCC filters and tender PDFs still need item-level manual review/import.")
 
     with tab_checks:
         st.markdown('<div class="section-kicker">REPRODUCIBILITY / FIVE PUBLISHED FORMULAS</div><div class="section-heading">Can we reproduce the arithmetic?</div>', unsafe_allow_html=True)
@@ -194,14 +292,14 @@ def render_evidence_room():
 
     with tab_method:
         st.markdown('<div class="section-kicker">TRANSPARENCY / CAUSAL EVIDENCE</div><div class="section-heading">What can we prove caused a change?</div>', unsafe_allow_html=True)
-        st.markdown("""
+        st.markdown(f"""
         | Evidence class | What this workspace has | How it is shown |
         |---|---|---|
         | Supplied source | 23 GCC starter rows, source labels and notes | Retained as supplied |
         | GCC primary report | Climate Budget action IDs, costs, status, quantities, progress, pages | Confirmed as published by GCC; not independently audited |
         | Derived arithmetic | Five GHG estimate checks and 5 km / 11.6 km progress ratio | Formula and inputs exposed; real-world activity assumptions remain unverified |
         | Official award listing | Three matching ADB award entries | Contract values in USD; not expenditure |
-        | CMRL official award listing | 25 tender and consultancy award records with source IDs, titles, dates, contractors and published value strings | Procurement records only; no completion, expenditure or measured climate/equity outcomes in the listing |
+        | CMRL official award listing | {len(cmrl_awards)} tender award-list rows with exact source wording, dates, contractors and published value strings | Procurement records only; no completion, expenditure or measured climate/equity outcomes in the listing |
         | Unknown | Actual spend, tender physical quantities, live completion, exact locations | Displayed as unknown |
         | Optimisation inputs | No compatible validated resilience and geographic crosswalk for all records | Real-project ranking is withheld; evidence analysis still runs on source-backed data |
 
@@ -229,6 +327,8 @@ def render_evidence_room():
         **Overview.** Department bars count the supplied rows; they are not budget totals. The progress cards show what GCC reports in the 2025–26 Climate Budget: 5 of 11.6 km for Complete Streets, 78% for Villivakkam Tank, 55% for Chinna Nolambur bridge, and 24 CNG vehicles. These are published status claims, not live monitoring. The 43.1% Complete Streets figure is our division 5 ÷ 11.6.
 
         **GCC project evidence.** Filter by department, inspect all 23 source-linked project rows, then download the filtered crosswalk. The report page, status, quantity, cost and caveat travel together. Click the official GCC source link to open the report PDF.
+
+        **Evidence index & audit.** The document count and unique-project count are separate. The app withholds a unique-project number until the GCC starter IDs, CMRL records, and drainage tenders have a reviewed cross-source project map. Search and filter official source documents, inspect missing fields and source status, download provenance with each row, and review possible duplicate references. The optimizer still uses its separate synthetic scenario inputs.
 
         **Drainage awards.** This is a procurement cross-check for three tender packages matched to ADB award listings. The amount is a contract award in USD. The app intentionally shows tender estimate and actual expenditure as unknown; an awarded contract is not proof of payment or completion.
 
