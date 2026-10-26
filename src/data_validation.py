@@ -1,37 +1,35 @@
-"""
-data_validation.py
-
-Runs before optimization to confirm the dataset is complete and well-formed.
-This is a real integrity check, not decoration: it actually verifies no
-missing values, no negative costs, no orphaned zone references, and reports
-genuine summary statistics -- the kind of check any production decision
-tool would run before trusting its inputs.
-"""
+"""Check model inputs for completeness and basic integrity before comparison."""
 import pandas as pd
+import numpy as np
 
 
-def validate(df: pd.DataFrame, wards: pd.DataFrame) -> dict:
+def validate(df: pd.DataFrame, zones: pd.DataFrame) -> dict:
     issues = []
 
     n_projects = len(df)
-    n_zones = len(wards)
+    n_zones = len(zones)
     n_categories = df["category"].nunique()
     total_cost = df["cost_cr_inr"].sum()
 
-    missing_counts = df[["cost_cr_inr", "carbon_reduction_tco2_per_year",
-                          "resilience_benefit_raw", "population_benefited"]].isna().sum()
+    core_numeric = ["cost_cr_inr", "carbon_reduction_tco2_per_year",
+                    "resilience_benefit_raw", "population_benefited"]
+    missing_counts = df[core_numeric].isna().sum()
     n_missing = int(missing_counts.sum())
     if n_missing > 0:
-        issues.append(f"{n_missing} missing values found in core numeric columns")
+        issues.append(f"{n_missing} missing values found in required numeric fields; missing values are not filled in")
 
-    n_negative_cost = int((df["cost_cr_inr"] < 0).sum())
-    if n_negative_cost > 0:
-        issues.append(f"{n_negative_cost} projects have negative cost")
+    non_finite = int(np.isinf(df[core_numeric].to_numpy(dtype=float)).sum())
+    if non_finite:
+        issues.append(f"{non_finite} infinite values found in required numeric fields")
 
-    orphaned = df[~df["zone_id"].isin(wards["zone_id"])]
+    n_nonpositive_cost = int((df["cost_cr_inr"] <= 0).sum())
+    if n_nonpositive_cost > 0:
+        issues.append(f"{n_nonpositive_cost} projects have zero or negative cost")
+
+    orphaned = df[~df["zone_id"].isin(zones["zone_id"])]
     n_orphaned = len(orphaned)
     if n_orphaned > 0:
-        issues.append(f"{n_orphaned} projects reference a zone_id not present in wards.csv")
+        issues.append(f"{n_orphaned} projects reference a zone_id not present in the zone file")
 
     n_duplicate_ids = int(df["project_id"].duplicated().sum())
     if n_duplicate_ids > 0:
@@ -45,12 +43,12 @@ def validate(df: pd.DataFrame, wards: pd.DataFrame) -> dict:
     if n_negative_resilience > 0:
         issues.append(f"{n_negative_resilience} projects have negative resilience benefit")
 
-    merged_pop = df.merge(wards[["zone_id", "approx_population_2023"]], on="zone_id",
-                           how="left", suffixes=("", "_ward"))
+    merged_pop = df.merge(zones[["zone_id", "approx_population_2023"]], on="zone_id",
+                           how="left", suffixes=("", "_zone"))
     n_pop_exceeds_ward = int((merged_pop["population_benefited"] >
                                merged_pop["approx_population_2023"]).sum())
     if n_pop_exceeds_ward > 0:
-        issues.append(f"{n_pop_exceeds_ward} projects claim population_benefited exceeding their ward's total population")
+        issues.append(f"{n_pop_exceeds_ward} projects claim population_benefited exceeding their zone's total population")
 
     status = "READY" if not issues else "ISSUES FOUND"
 
@@ -68,7 +66,7 @@ def validate(df: pd.DataFrame, wards: pd.DataFrame) -> dict:
 def print_report(report: dict) -> None:
     print("DATA QUALITY REPORT")
     print(f"  Projects loaded:       {report['n_projects']}")
-    print(f"  Chennai zones:         {report['n_zones']}")
+    print(f"  GCC zones:             {report['n_zones']}")
     print(f"  Project categories:    {report['n_categories']}")
     print(f"  Total candidate cost:  \u20b9{report['total_candidate_cost_cr']} cr")
     print(f"  Missing values:        {report['n_missing_values']}")
@@ -76,12 +74,12 @@ def print_report(report: dict) -> None:
         print("  Issues:")
         for issue in report["issues"]:
             print(f"    - {issue}")
-    print(f"  Status: {'DATA READY' if report['status'] == 'READY' else report['status']}")
+    print(f"  Status: {'READY TO COMPARE' if report['status'] == 'READY' else report['status']}")
 
 
 if __name__ == "__main__":
     from preprocessing import preprocess
     df = preprocess()
-    wards = pd.read_csv("../data/raw/wards.csv")
-    report = validate(df, wards)
+    zones = pd.read_csv("../data/raw/wards.csv")
+    report = validate(df, zones)
     print_report(report)
