@@ -32,10 +32,10 @@ def max_resilience_solution(front_df: pd.DataFrame) -> pd.Series:
 
 def build_scenarios(front_df: pd.DataFrame) -> pd.DataFrame:
     scenarios = {
-        "Max Carbon": max_carbon_solution(front_df),
-        "Max Equity": max_equity_solution(front_df),
-        "Max Resilience": max_resilience_solution(front_df),
-        "Balanced (Recommended)": pick_balanced_solution(front_df),
+        "Highest carbon score": max_carbon_solution(front_df),
+        "Highest community score": max_equity_solution(front_df),
+        "Highest resilience score": max_resilience_solution(front_df),
+        "Balanced sample plan": pick_balanced_solution(front_df),
     }
     rows = []
     for name, sol in scenarios.items():
