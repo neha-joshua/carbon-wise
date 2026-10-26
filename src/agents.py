@@ -1,13 +1,8 @@
 """
 agents.py
 
-Templated "multi-agent council" -- five specialised agents that each read the
-SAME real optimizer/comparison outputs and generate a rule-based sentence
-from their own perspective. This deliberately does NOT call an LLM: for a
-live panel demo, a rule-based agent that reads real numbers is more reliable
-than an API call that can hallucinate a number in front of your panel. Full
-LLM-based agentic reasoning (per Papers 5, 6 in the lit review) is scoped as
-Final Review follow-up work -- state this explicitly if asked.
+Rule-based summaries of the generated sample-model comparison. These are not
+autonomous AI agents or evidence of real-world outcomes.
 """
 import pandas as pd
 
@@ -16,11 +11,10 @@ def carbon_agent_statement(comparison: pd.DataFrame) -> str:
     best = comparison.loc[comparison["carbon_score"].idxmax()]
     cw = comparison[comparison["method"].str.contains("CarbonWise")].iloc[0]
     if best["method"] == cw["method"]:
-        return f"The recommended portfolio also delivers the highest carbon reduction score ({cw['carbon_score']:.0f}) among all methods compared."
+        return f"In this sample comparison, the selected plan has the highest carbon score ({cw['carbon_score']:.0f}) among the methods shown. This score is not a measured emissions reduction."
     gap = best["carbon_score"] - cw["carbon_score"]
-    return (f"'{best['method']}' achieves the highest raw carbon score ({best['carbon_score']:.0f}), "
-            f"{gap:.0f} points above CarbonWise's {cw['carbon_score']:.0f} -- "
-            f"but at a cost to resilience and equity, detailed below.")
+    return (f"In this sample comparison, {best['method']} has the highest carbon score ({best['carbon_score']:.0f}), "
+            f"{gap:.0f} points above the selected plan's {cw['carbon_score']:.0f}. These are relative model scores, not physical reductions.")
 
 
 def resilience_agent_statement(comparison: pd.DataFrame) -> str:
@@ -28,9 +22,8 @@ def resilience_agent_statement(comparison: pd.DataFrame) -> str:
     others = comparison[~comparison["method"].str.contains("CarbonWise")]
     max_other = others["resilience_score"].max()
     lift = (cw["resilience_score"] - max_other) / max_other * 100 if max_other > 0 else 0
-    return (f"CarbonWise's portfolio scores {cw['resilience_score']:.0f} on resilience, "
-            f"a {lift:.0f}% improvement over the next-best method -- meaning stronger "
-            f"protection against flood and heat exposure across funded zones.")
+    return (f"The selected sample plan's resilience score is {cw['resilience_score']:.0f}; "
+            f"that is {lift:.0f}% above the next-highest comparison score. It does not measure flood or heat protection.")
 
 
 def equity_agent_statement(comparison: pd.DataFrame) -> str:
@@ -38,34 +31,30 @@ def equity_agent_statement(comparison: pd.DataFrame) -> str:
     others = comparison[~comparison["method"].str.contains("CarbonWise")]
     max_other = others["equity_score"].max()
     lift = (cw["equity_score"] - max_other) / max_other * 100 if max_other > 0 else 0
-    return (f"CarbonWise's portfolio scores {cw['equity_score']:.0f} on equity, "
-            f"{lift:.0f}% higher than the best-performing baseline -- concentrating more "
-            f"investment in Chennai's highest-vulnerability zones (per the Nandhini et al. "
-            f"2025 vulnerability index).")
+    return (f"The selected sample plan's community score is {cw['equity_score']:.0f}, "
+            f"{lift:.0f}% above the highest comparison score. This relative score does not show who received benefits or prove an equity outcome.")
 
 
 def budget_agent_statement(comparison: pd.DataFrame, budget_cr: float) -> str:
     cw = comparison[comparison["method"].str.contains("CarbonWise")].iloc[0]
     pct = cw["total_cost_cr"] / budget_cr * 100
-    return (f"The recommended portfolio uses \u20b9{cw['total_cost_cr']:.1f} crore of the "
-            f"\u20b9{budget_cr:.1f} crore available ({pct:.0f}% utilisation) across "
-            f"{int(cw['n_projects'])} projects.")
+    return (f"The sample plan uses Rs {cw['total_cost_cr']:.1f} crore of the "
+            f"Rs {budget_cr:.1f} crore limit ({pct:.0f}%) across "
+            f"{int(cw['n_projects'])} generated examples.")
 
 
 def coordinator_statement(comparison: pd.DataFrame) -> str:
     cw = comparison[comparison["method"].str.contains("CarbonWise")].iloc[0]
-    return (f"Balanced portfolio recommended: it does not maximise any single objective, "
-            f"but avoids the resilience and equity shortfalls of the greedy carbon-only "
-            f"strategy while still delivering strong carbon reduction "
-            f"(score {cw['carbon_score']:.0f}). This trade-off is the direct output of "
-            f"NSGA-II's multi-objective search, not a manually tuned rule.")
+    return (f"The selected sample plan balances three relative model scores: carbon "
+            f"{cw['carbon_score']:.0f}, resilience {cw['resilience_score']:.0f}, and community "
+            f"{cw['equity_score']:.0f}. The search returns options; it does not prove real-world benefits or guarantee every possible plan was found.")
 
 
 def full_council_report(comparison: pd.DataFrame, budget_cr: float) -> list[dict]:
     return [
-        {"agent": "Carbon Agent", "statement": carbon_agent_statement(comparison)},
-        {"agent": "Resilience Agent", "statement": resilience_agent_statement(comparison)},
-        {"agent": "Equity Agent", "statement": equity_agent_statement(comparison)},
-        {"agent": "Budget Agent", "statement": budget_agent_statement(comparison, budget_cr)},
-        {"agent": "Coordinator", "statement": coordinator_statement(comparison)},
+        {"agent": "Carbon score", "statement": carbon_agent_statement(comparison)},
+        {"agent": "Resilience score", "statement": resilience_agent_statement(comparison)},
+        {"agent": "Community score", "statement": equity_agent_statement(comparison)},
+        {"agent": "Budget", "statement": budget_agent_statement(comparison, budget_cr)},
+        {"agent": "Summary", "statement": coordinator_statement(comparison)},
     ]
