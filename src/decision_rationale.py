@@ -1,11 +1,8 @@
 """
 decision_rationale.py
 
-Produces the structured "Why this portfolio?" breakdown: budget constraint,
-carbon standing relative to the full Pareto front, equity impact, the
-explicit trade-off made, and the leading alternative. Every number here is
-pulled directly from already-computed optimizer/front data -- nothing is
-invented, nothing requires an LLM.
+Builds a rule-based comparison using generated sample-model scores. These
+scores and allocation comparisons are not measured real-world impacts.
 """
 import pandas as pd
 
@@ -29,31 +26,24 @@ def build_rationale(front_df: pd.DataFrame, balanced: pd.Series,
 
     return [
         {
-            "title": "Budget constraint",
-            "detail": f"\u20b9{balanced['total_cost_cr']:.1f} cr of \u20b9{budget_cr:.1f} cr utilised "
-                      f"({balanced['total_cost_cr']/budget_cr*100:.0f}%) across {int(balanced['n_projects'])} projects.",
+            "title": "Budget used",
+            "detail": f"Rs {balanced['total_cost_cr']:.1f} crore of the Rs {budget_cr:.1f} crore sample budget ({balanced['total_cost_cr']/budget_cr*100:.0f}%) across {int(balanced['n_projects'])} generated examples.",
         },
         {
-            "title": "Carbon standing",
-            "detail": f"Ranks in the top {100-pct:.0f}% of all {len(front_df)} Pareto-optimal portfolios "
-                      f"found for this budget on carbon performance alone.",
+            "title": "Carbon score",
+            "detail": f"This plan's sample carbon score is in the top {100-pct:.0f}% of the {len(front_df)} options found for this budget.",
         },
         {
-            "title": "Equity impact",
-            "detail": f"Directs {audit['after']['actual_share_pct']:.0f}% of investment toward "
-                      f"high-vulnerability zones, against a population-proportional target of "
-                      f"{audit['target_share_pct']:.0f}%.",
+            "title": "Sample cost distribution",
+            "detail": f"{audit['after']['actual_share_pct']:.0f}% of sample cost is assigned to zones above the selected threshold; their population-share reference is {audit['target_share_pct']:.0f}%. This does not measure who received benefits.",
         },
         {
-            "title": "Trade-off made",
-            "detail": f"Sacrifices {carbon_gap_pct:.0f}% of the maximum achievable carbon reduction "
-                      f"(compared to the max-carbon portfolio) to gain {equity_gain_pct:.0f}% higher equity.",
+            "title": "Trade-off",
+            "detail": f"Compared with the highest-carbon-score option found, this plan's carbon score is {carbon_gap_pct:.0f}% lower and its community score is {equity_gain_pct:.0f}% higher.",
         },
         {
-            "title": "Leading alternative",
-            "detail": f"The max-carbon portfolio achieves {alt['carbon_score']:.0f} carbon score "
-                      f"but only {alt['equity_score']:.0f} equity score, versus this portfolio's "
-                      f"{balanced['equity_score']:.0f}.",
+            "title": "Highest-carbon-score option",
+            "detail": f"It scores {alt['carbon_score']:.0f} for carbon and {alt['equity_score']:.0f} for community, compared with {balanced['equity_score']:.0f} community score for this plan. These are generated, relative scores.",
         },
     ]
 
