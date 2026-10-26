@@ -4,8 +4,8 @@ A static browser-side prototype intended to deploy from this folder as the Verce
 
 ## Deploy from GitHub
 
-1. Push this folder to the `main` branch of `neha-joshua/carbon-wise`.
-2. In Vercel, choose **Add New → Project** and import `neha-joshua/carbon-wise`.
+1. In Vercel, choose **Add New → Project** and import `neha-joshua/carbon-wise`.
+2. Select the `vercel-web-edition` branch.
 3. Set **Root Directory** to `vercel_app` and **Framework Preset** to **Other**. Leave build and output commands blank; this is a static site.
 4. Deploy. Vercel will assign a `*.vercel.app` URL. Check deployment visibility in Vercel project settings.
 
