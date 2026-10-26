@@ -68,9 +68,9 @@ def render_evidence_room():
       .evidence-hero { background: radial-gradient(ellipse at 83% 0%, #315849 0%, #182b25 42%, #101c19 100%);
         border-radius: 24px; padding: 38px 42px 34px; color: #f7f7ef; margin: 4px 0 22px; position: relative; overflow: hidden; }
       .evidence-kicker { color: #c9e86b; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; font-weight: 700; }
-      .evidence-title { font-size: clamp(38px, 5vw, 64px); line-height: .99; letter-spacing: -2.4px; font-weight: 750; margin: 16px 0 14px; max-width: 780px; }
-      .evidence-copy { color: #d1ddd3; font-size: 17px; max-width: 770px; line-height: 1.5; }
-      .evidence-chip { display:inline-block; border: 1px solid #779186; color:#dbe7dc; padding:7px 11px; border-radius:99px; font-size:12px; margin:14px 7px 0 0; }
+      .evidence-title { font-size: clamp(34px, 4vw, 50px); line-height: 1.06; letter-spacing: -1.6px; font-weight: 750; margin: 12px 0 10px; max-width: 780px; }
+      .evidence-copy { color: #d1ddd3; font-size: 15px; max-width: 770px; line-height: 1.55; }
+      .evidence-chip { display:inline-block; border: 1px solid #779186; color:#dbe7dc; padding:6px 9px; border-radius:99px; font-size:10px; margin:10px 6px 0 0; }
       .metric-card { background:#fff; border:1px solid #e0e6df; border-radius:16px; padding:20px 22px; min-height:128px; box-shadow:0 5px 18px #172b2010; }
       .metric-label { color:#607167; text-transform:uppercase; font-size:11px; letter-spacing:1.1px; font-weight:700; }
       .metric-value { font-size:39px; letter-spacing:-1.8px; line-height:1.15; font-weight:750; color:#16392d; margin:9px 0 3px; }
@@ -98,29 +98,28 @@ def render_evidence_room():
 
     st.markdown("""
     <div class="evidence-hero">
-      <div class="evidence-kicker">Chennai · Evidence room · GCC source records</div>
-      <div class="evidence-title">Make every rupee<br>traceable.</div>
-      <div class="evidence-copy">A decision-support view of the records you supplied: what GCC reports, what official award data corroborates, and what is still missing before any portfolio can be called decision-ready.</div>
-      <span class="evidence-chip">SOURCE-FIRST</span><span class="evidence-chip">15-ZONE CONTEXT</span><span class="evidence-chip">NO INVENTED IMPACTS</span>
+      <div class="evidence-kicker">Official records · Chennai</div>
+      <div class="evidence-title">What city records say about climate projects.</div>
+      <div class="evidence-copy">Browse GCC project statements and public contract awards. Each figure is labelled as reported, estimated, or unknown so you can see what the records support.</div>
     </div>
     """, unsafe_allow_html=True)
 
     k1, k2, k3, k4 = st.columns(4)
     cards = [
-        (k1, "GCC ACTIONS CROSS-REFERENCED", f"{len(evidence)}", "Matched to official Climate Budget items"),
-        (k2, "PUBLISHED GHG ESTIMATES", f"{evidence['reported_annual_ghg_reduction_tco2e'].astype(str).str.strip().ne('').sum()}", "GCC-reported modelled figures, not measured outcomes"),
-        (k3, "DRAINAGE AWARDS LINKED", f"{len(tenders)}", "Tender notices matched to ADB award entries"),
-        (k4, "ACTUAL SPEND CONFIRMED", "0", "Award totals are not expenditure"),
+        (k1, "GCC PROJECT RECORDS", f"{len(evidence)}", "Linked to published Climate Budget items"),
+        (k2, "GHG ESTIMATES REPORTED", f"{evidence['reported_annual_ghg_reduction_tco2e'].astype(str).str.strip().ne('').sum()}", "Published estimates, not measured results"),
+        (k3, "DRAINAGE CONTRACT AWARDS", f"{len(tenders)}", "Matched to public ADB award records"),
+        (k4, "ACTUAL SPENDING", "Unknown", "Not reported in the records shown here"),
     ]
     for col, label, value, note in cards:
         with col:
             st.markdown(f'<div class="metric-card"><div class="metric-label">{label}</div><div class="metric-value">{value}</div><div class="metric-note">{note}</div></div>', unsafe_allow_html=True)
 
-    st.markdown('<div class="status-band"><b>Evidence is now connected to the project ledger.</b> Every starter row is cross-referenced to its numbered GCC Climate Budget action and printed report page. Published quantities, project status and GHG calculations are shown with their scope. The scenario optimizer remains separate because these records do not share one validated carbon, resilience and geographic basis.</div>', unsafe_allow_html=True)
+    st.markdown('<div class="status-band"><b>What this page can tell you:</b> what GCC published and which contracts appear in official award listings. It cannot confirm actual spending, project completion, or measured climate outcomes. See the source and limitation beside each record.</div>', unsafe_allow_html=True)
 
-    tab_overview, tab_projects, tab_tenders, tab_cmrl, tab_index, tab_checks, tab_method, tab_guide = st.tabs(["Overview", "GCC project evidence", "Drainage awards", "CMRL award records", "Evidence library", "Calculation check", "What the evidence can prove", "Walkthrough"])
+    tab_overview, tab_projects, tab_tenders, tab_sources = st.tabs(["Overview", "GCC project list", "Contract awards", "Sources & checks"])
     with tab_overview:
-        st.markdown('<div class="section-kicker">01 / What the evidence can support</div><div class="section-heading">A useful dataset starts with honest boundaries.</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-heading">What is covered in the report?</div>', unsafe_allow_html=True)
         left, right = st.columns([1.05, .95], gap="large")
         with left:
             dept = projects.groupby("gcc_department").size().sort_values(ascending=True).reset_index(name="records")
@@ -133,36 +132,30 @@ def render_evidence_room():
             st.caption("Counts only. Costs are not summed because the starter includes programme aggregates and potential overlaps.")
         with right:
             known_carbon = int(projects["carbon_tco2e_per_year"].notna().sum())
-            st.markdown('<div class="metric-card" style="min-height:0"><div class="metric-label">HOW TO READ THE RECORDS</div><div class="section-heading" style="font-size:24px;margin-top:10px">The report provides several kinds of evidence.</div><p style="color:#68776e;line-height:1.55">Carbon is populated on {}/{} starter rows. Those are GCC-published estimates or source-labelled calculations, not independently measured emissions. This room makes the published quantities, progress and scope visible alongside the original report pages.</p><hr><p style="color:#68776e;line-height:1.55"><b>Geography:</b> project locations remain source text. The separate 15-zone file is not used to invent project-to-zone assignments. The synthetic optimizer is in a separate workspace.</p></div>'.format(known_carbon, len(projects)), unsafe_allow_html=True)
-            if not issues.empty:
-                top = issues[issues["severity"].isin(["error", "warning"])].head(5)
-                st.markdown("**Highest-priority review flags**")
+            st.metric("Records with a published GHG estimate", f"{known_carbon} of {len(projects)}")
+            st.caption("These are estimates printed or calculated in the report, not measured emissions reductions.")
+        if not issues.empty:
+            top = issues[issues["severity"].isin(["error", "warning"])].head(5)
+            with st.expander("Data notes to review"):
                 for _, issue in top.iterrows():
                     st.markdown(f"- **{issue['record_id']} · {issue['code']}** — {issue['message']}")
-        st.markdown('<div class="section-kicker">02 / GCC-published project progress</div><div class="section-heading">Physical progress, reported by GCC.</div>', unsafe_allow_html=True)
-        progress_cards = [
-            ("COMPLETE STREETS", "5 / 11.6 km", "GCC reports 5 km complete across six neighbourhoods; arithmetic share 43.1% (derived).", "GCC Climate Budget, printed p.45"),
-            ("VILLIVAKKAM TANK", "78% complete", "Physical progress stated for the lake redevelopment; report also gives 50,000 m³ planned pond capacity.", "GCC Climate Budget, printed p.46"),
-            ("CHINNA NOLAMBUR BRIDGE", "55% complete", "GCC reports the bridge being raised from 3 m to 6 m to improve water flow.", "GCC Climate Budget, printed pp.49-50"),
-            ("FLEET DEPLOYMENT", "24 CNG vehicles", "15 mini trucks + 3 recovery vehicles + 6 water tankers reported deployed/handed over in 2024-25.", "GCC Climate Budget, printed pp.47-48"),
-        ]
-        prog_cols = st.columns(4, gap="medium")
-        for col, (label, value, detail, source_note) in zip(prog_cols, progress_cards):
-            with col:
-                st.markdown(f'<div class="metric-card" style="min-height:175px"><div class="metric-label">{label}</div><div class="metric-value" style="font-size:29px">{value}</div><div class="metric-note" style="line-height:1.45">{detail}<br><br><b>{source_note}</b></div></div>', unsafe_allow_html=True)
-        st.caption("These are GCC's published status statements in the 2025-26 Climate Budget report (report PDF issued January 2026), not live project-monitoring data. The 43.1% figure is 5 ÷ 11.6, calculated from GCC's published lengths.")
-
-        st.markdown('<div class="section-kicker">03 / Tender evidence</div><div class="section-heading">Award records, with the unknowns left visible.</div>', unsafe_allow_html=True)
-        tender_cols = st.columns(3, gap="medium")
-        for col, (_, row) in zip(tender_cols, tenders.iterrows()):
-            package = str(row["tender_reference"]).split("/")[-1]
-            with col:
-                st.markdown(f'''<div class="tender-card"><div class="tender-tag">AWARD RECORD · {row['contract_date']}</div><div class="tender-package">Package {package}</div><div class="tender-title">{row['title']}</div><div class="tender-value">US${row['awarded_contract_value_usd']:,.2f}</div><div class="tender-meta">Total contract · {row['contractor']}<br>Not actual expenditure · quantities and completion unknown</div></div>''', unsafe_allow_html=True)
-                st.link_button("Open ADB award source ↗", row["award_source_url"], use_container_width=True)
+        with st.expander("See four reported delivery examples"):
+            st.markdown("These progress figures come from GCC's 2025–26 Climate Budget report. They are published status statements, not live monitoring or independent verification.")
+            progress_cards = [
+                ("COMPLETE STREETS", "5 / 11.6 km", "GCC reports 5 km complete across six neighbourhoods; arithmetic share 43.1% (derived).", "GCC Climate Budget, printed p.45"),
+                ("VILLIVAKKAM TANK", "78% complete", "Physical progress stated for the lake redevelopment; report also gives 50,000 m³ planned pond capacity.", "GCC Climate Budget, printed p.46"),
+                ("CHINNA NOLAMBUR BRIDGE", "55% complete", "GCC reports the bridge being raised from 3 m to 6 m to improve water flow.", "GCC Climate Budget, printed pp.49-50"),
+                ("FLEET DEPLOYMENT", "24 CNG vehicles", "15 mini trucks + 3 recovery vehicles + 6 water tankers reported deployed/handed over in 2024-25.", "GCC Climate Budget, printed pp.47-48"),
+            ]
+            prog_cols = st.columns(4, gap="medium")
+            for col, (label, value, detail, source_note) in zip(prog_cols, progress_cards):
+                with col:
+                    st.markdown(f'<div class="metric-card" style="min-height:175px"><div class="metric-label">{label}</div><div class="metric-value" style="font-size:29px">{value}</div><div class="metric-note" style="line-height:1.45">{detail}<br><br><b>{source_note}</b></div></div>', unsafe_allow_html=True)
+                st.caption("The report was issued in January 2026. The 43.1% for Complete Streets is calculated from GCC's published 5 km ÷ 11.6 km figures.")
 
     with tab_projects:
-        st.markdown('<div class="section-kicker">GCC / PRIMARY SOURCE CROSS-REFERENCE</div><div class="section-heading">Project evidence register</div>', unsafe_allow_html=True)
-        st.caption("Each row links your starter ID to the GCC Climate Budget's own activity number, status, quantity and printed page. 'GCC reported' means published in GCC's report; it is not third-party verification.")
+        st.markdown('<div class="section-heading">GCC project records</div>', unsafe_allow_html=True)
+        st.caption("Filter the projects and open the GCC report link for each row. Figures and progress are what GCC published; they are not independently verified outcomes.")
         dept_options = sorted(projects["gcc_department"].dropna().unique())
         picked = st.multiselect("Filter departments", dept_options, default=dept_options)
         p = evidence.merge(projects, on="project_id", how="left", validate="one_to_one")
@@ -184,185 +177,229 @@ def render_evidence_room():
         st.link_button("Open ADB award table ↗", tenders.iloc[0]["award_source_url"], use_container_width=False)
         st.download_button("Download tender evidence table (CSV)", tenders.to_csv(index=False).encode("utf-8"), "carbonwise_drainage_award_evidence.csv", "text/csv")
 
-    with tab_cmrl:
-        st.markdown('<div class="section-kicker">CHENNAI METRO RAIL LIMITED / PRIMARY-SOURCE PROCUREMENT</div><div class="section-heading">Award records beyond the GCC starter list</div>', unsafe_allow_html=True)
-        st.caption(f"{len(cmrl_awards)} tender and consultancy award records from CMRL's official awarded-tenders listing. Each row is a procurement record, not a separately validated completed project. Contract awards are not actual expenditure; the source does not establish completion, measured GHG reductions, or population-level equity outcomes.")
-        cmrl_view = cmrl_awards[["evidence_id", "tender_reference", "work_title", "department", "tender_mode_as_published", "department_or_agency", "record_type", "tender_notice_date_as_published", "award_date_as_published", "contractor", "awarded_value_as_published", "award_value_field_heading", "currency_as_published", "value_unit_as_published", "tax_basis_as_published", "award_status", "climate_relevance", "equity_relevance", "completion_status", "actual_expenditure", "primary_source_url", "source_retrieved_at", "source_content_sha256", "interpretation_note"]].copy()
-        cmrl_view = cmrl_view.rename(columns={"evidence_id":"Evidence ID", "tender_reference":"Tender reference", "work_title":"Work title (exact CMRL text)", "department":"Department", "tender_mode_as_published":"Tender mode as published", "department_or_agency":"Agency", "record_type":"Record type", "tender_notice_date_as_published":"Notice date (source format)", "award_date_as_published":"Award date (source format)", "contractor":"Awarded contractor", "awarded_value_as_published":"Award value (source text)", "award_value_field_heading":"Award value column heading", "currency_as_published":"Currency explicitly stated", "value_unit_as_published":"Unit as stated", "tax_basis_as_published":"Tax basis note", "award_status":"Source status", "climate_relevance":"Climate evidence", "equity_relevance":"Equity evidence", "completion_status":"Completion evidence", "actual_expenditure":"Actual expenditure", "primary_source_url":"Official source", "source_retrieved_at":"Retrieved UTC", "source_content_sha256":"Page SHA-256", "interpretation_note":"Scope note"})
-        st.dataframe(cmrl_view, use_container_width=True, hide_index=True, height=560, column_config={"Official source": st.column_config.LinkColumn()})
-        st.link_button("Open CMRL's official awarded-tenders listing ↗", "https://chennaimetrorail.org/awarded-tenders/", use_container_width=False)
-        st.download_button("Download CMRL award evidence (CSV)", cmrl_awards.to_csv(index=False).encode("utf-8"), "carbonwise_cmrl_award_evidence.csv", "text/csv")
+    with tab_tenders:
+        with st.expander(f"Chennai Metro Rail awards ({len(cmrl_awards)} records)"):
+            st.markdown('<div class="section-heading">Chennai Metro Rail awards</div>', unsafe_allow_html=True)
+            st.caption(f"{len(cmrl_awards)} tender and consultancy award records from CMRL's official listing. These are procurement records; they do not establish completion, actual spending, measured emissions reductions, or equity outcomes.")
+            cmrl_view = cmrl_awards[["evidence_id", "tender_reference", "work_title", "department", "tender_mode_as_published", "department_or_agency", "record_type", "tender_notice_date_as_published", "award_date_as_published", "contractor", "awarded_value_as_published", "award_value_field_heading", "currency_as_published", "value_unit_as_published", "tax_basis_as_published", "award_status", "climate_relevance", "equity_relevance", "completion_status", "actual_expenditure", "primary_source_url", "source_retrieved_at", "source_content_sha256", "interpretation_note"]].copy()
+            cmrl_view = cmrl_view.rename(columns={"evidence_id":"Evidence ID", "tender_reference":"Tender reference", "work_title":"Work title (exact CMRL text)", "department":"Department", "tender_mode_as_published":"Tender mode as published", "department_or_agency":"Agency", "record_type":"Record type", "tender_notice_date_as_published":"Notice date (source format)", "award_date_as_published":"Award date (source format)", "contractor":"Awarded contractor", "awarded_value_as_published":"Award value (source text)", "award_value_field_heading":"Award value column heading", "currency_as_published":"Currency explicitly stated", "value_unit_as_published":"Unit as stated", "tax_basis_as_published":"Tax basis note", "award_status":"Source status", "climate_relevance":"Climate evidence", "equity_relevance":"Equity evidence", "completion_status":"Completion evidence", "actual_expenditure":"Actual expenditure", "primary_source_url":"Official source", "source_retrieved_at":"Retrieved UTC", "source_content_sha256":"Page SHA-256", "interpretation_note":"Scope note"})
+            st.dataframe(cmrl_view, use_container_width=True, hide_index=True, height=560, column_config={"Official source": st.column_config.LinkColumn()})
+            st.link_button("Open CMRL's official awarded-tenders listing ↗", "https://chennaimetrorail.org/awarded-tenders/", use_container_width=False)
+            st.download_button("Download CMRL award evidence (CSV)", cmrl_awards.to_csv(index=False).encode("utf-8"), "carbonwise_cmrl_award_evidence.csv", "text/csv")
 
-    with tab_index:
-        st.markdown('<div class="section-kicker">PROVENANCE / DOCUMENT-LEVEL INDEX</div><div class="section-heading">Count evidence documents separately from projects.</div>', unsafe_allow_html=True)
-        c1, c2, c3, c4 = st.columns(4)
-        with c1:
-            st.metric("Evidence documents", f"{len(evidence_index):,}")
-        with c2:
-            st.metric("Unique projects", "Not established")
-        with c3:
-            linked_id_count = evidence_index.loc[evidence_index["project_id"].astype(str).str.strip().ne(""), "project_id"].nunique()
-            st.metric("Distinct linked IDs", f"{linked_id_count:,}")
-        with c4:
-            st.metric("Pending verification", f"{evidence_index['verification_tier'].str.contains('pending', case=False).sum():,}")
-        st.caption("A project count is withheld because GCC activity IDs, drainage tender packages, and CMRL award rows do not have a shared, reviewed project crosswalk. A distinct ID count is not a deduplicated project count. ‘Verified’ below means the source record is present in an official listing; it does not verify completion, payment, or outcomes.")
+    with tab_sources:
+        with st.expander("Browse source records and data gaps"):
+            st.markdown('<div class="section-kicker">PROVENANCE / DOCUMENT-LEVEL INDEX</div><div class="section-heading">Count evidence documents separately from projects.</div>', unsafe_allow_html=True)
+            c1, c2, c3, c4 = st.columns(4)
+            with c1:
+                st.metric("Evidence documents", f"{len(evidence_index):,}")
+            with c2:
+                st.metric("Unique projects", "Not established")
+            with c3:
+                linked_id_count = evidence_index.loc[evidence_index["project_id"].astype(str).str.strip().ne(""), "project_id"].nunique()
+                st.metric("Distinct linked IDs", f"{linked_id_count:,}")
+            with c4:
+                st.metric("Pending verification", f"{evidence_index['verification_tier'].str.contains('pending', case=False).sum():,}")
+            st.caption("A project count is withheld because GCC activity IDs, drainage tender packages, and CMRL award rows do not have a shared, reviewed project crosswalk. A distinct ID count is not a deduplicated project count. ‘Verified’ below means the source record is present in an official listing; it does not verify completion, payment, or outcomes.")
 
-        verified_count = evidence_index["verification_tier"].eq("verified_official_procurement_record_only").sum()
-        partial_count = evidence_index["verification_tier"].str.contains("partially", case=False).sum()
-        pending_count = evidence_index["verification_tier"].str.contains("pending", case=False).sum()
-        status_cols = st.columns(3)
-        status_cols[0].metric("Official source record located", f"{verified_count:,}")
-        status_cols[1].metric("Partially verified / source claim", f"{partial_count:,}")
-        status_cols[2].metric("Pending manual verification", f"{pending_count:,}")
+            verified_count = evidence_index["verification_tier"].eq("verified_official_procurement_record_only").sum()
+            partial_count = evidence_index["verification_tier"].str.contains("partially", case=False).sum()
+            pending_count = evidence_index["verification_tier"].str.contains("pending", case=False).sum()
+            status_cols = st.columns(3)
+            status_cols[0].metric("Official source record located", f"{verified_count:,}")
+            status_cols[1].metric("Partially verified / source claim", f"{partial_count:,}")
+            status_cols[2].metric("Pending manual verification", f"{pending_count:,}")
 
-        left, right = st.columns(2, gap="large")
-        with left:
-            source_counts = evidence_index.groupby("source_type", dropna=False).size().sort_values().reset_index(name="documents")
-            fig = px.bar(source_counts, x="documents", y="source_type", orientation="h", text="documents", title="Documents by source type", color="documents", color_continuous_scale=["#b9cc9a", "#244d3b"])
-            fig.update_layout(height=330, showlegend=False, coloraxis_showscale=False, margin=dict(l=0, r=10, t=45, b=5))
-            st.plotly_chart(fig, use_container_width=True)
-        with right:
-            agency_counts = evidence_index.groupby("agency", dropna=False).size().sort_values().reset_index(name="documents")
-            fig = px.bar(agency_counts, x="documents", y="agency", orientation="h", text="documents", title="Documents by agency", color="documents", color_continuous_scale=["#b9cc9a", "#244d3b"])
-            fig.update_layout(height=330, showlegend=False, coloraxis_showscale=False, margin=dict(l=0, r=10, t=45, b=5))
-            st.plotly_chart(fig, use_container_width=True)
+            left, right = st.columns(2, gap="large")
+            with left:
+                source_counts = evidence_index.groupby("source_type", dropna=False).size().sort_values().reset_index(name="documents")
+                fig = px.bar(source_counts, x="documents", y="source_type", orientation="h", text="documents", title="Documents by source type", color="documents", color_continuous_scale=["#b9cc9a", "#244d3b"])
+                fig.update_layout(height=330, showlegend=False, coloraxis_showscale=False, margin=dict(l=0, r=10, t=45, b=5))
+                st.plotly_chart(fig, use_container_width=True)
+            with right:
+                agency_counts = evidence_index.groupby("agency", dropna=False).size().sort_values().reset_index(name="documents")
+                fig = px.bar(agency_counts, x="documents", y="agency", orientation="h", text="documents", title="Documents by agency", color="documents", color_continuous_scale=["#b9cc9a", "#244d3b"])
+                fig.update_layout(height=330, showlegend=False, coloraxis_showscale=False, margin=dict(l=0, r=10, t=45, b=5))
+                st.plotly_chart(fig, use_container_width=True)
 
-        status_counts = evidence_index["status_normalized"].replace("", "Not normalized").value_counts().rename_axis("Status (normalized)").reset_index(name="Documents")
-        category_counts = evidence_index["intervention_category"].replace("", "Not classified").value_counts().rename_axis("Source category").reset_index(name="Documents")
-        location_counts = evidence_index["location_as_published"].replace("", "Not stated").value_counts().rename_axis("Location as published").reset_index(name="Documents")
-        source_coverage, status_coverage = st.columns(2, gap="large")
-        with source_coverage:
-            st.markdown("**Source category coverage**")
-            st.dataframe(category_counts, use_container_width=True, hide_index=True)
-        with status_coverage:
-            st.markdown("**Reported status coverage**")
-            st.dataframe(status_counts, use_container_width=True, hide_index=True)
-        st.markdown("**Location coverage (source wording only)**")
-        st.dataframe(location_counts, use_container_width=True, hide_index=True)
+            status_counts = evidence_index["status_normalized"].replace("", "Not normalized").value_counts().rename_axis("Status (normalized)").reset_index(name="Documents")
+            category_counts = evidence_index["intervention_category"].replace("", "Not classified").value_counts().rename_axis("Source category").reset_index(name="Documents")
+            location_counts = evidence_index["location_as_published"].replace("", "Not stated").value_counts().rename_axis("Location as published").reset_index(name="Documents")
+            source_coverage, status_coverage = st.columns(2, gap="large")
+            with source_coverage:
+                st.markdown("**Source category coverage**")
+                st.dataframe(category_counts, use_container_width=True, hide_index=True)
+            with status_coverage:
+                st.markdown("**Reported status coverage**")
+                st.dataframe(status_counts, use_container_width=True, hide_index=True)
+            st.markdown("**Location coverage (source wording only)**")
+            st.dataframe(location_counts, use_container_width=True, hide_index=True)
 
-        fields_to_check = ["primary_source_url", "location_as_published", "reported_value_original_text", "actual_expenditure_as_published", "project_status_as_published", "physical_progress_as_published", "ghg_value_as_published", "equity_relevance_evidence", "source_retrieved_at"]
-        coverage = pd.DataFrame({"Field": fields_to_check, "Records populated": [evidence_index[f].astype(str).str.strip().ne("").sum() for f in fields_to_check], "Total documents": len(evidence_index)})
-        coverage["Missing"] = coverage["Total documents"] - coverage["Records populated"]
-        st.markdown("**Missing-data coverage**")
-        st.dataframe(coverage, use_container_width=True, hide_index=True)
+            fields_to_check = ["primary_source_url", "location_as_published", "reported_value_original_text", "actual_expenditure_as_published", "project_status_as_published", "physical_progress_as_published", "ghg_value_as_published", "equity_relevance_evidence", "source_retrieved_at"]
+            coverage = pd.DataFrame({"Field": fields_to_check, "Records populated": [evidence_index[f].astype(str).str.strip().ne("").sum() for f in fields_to_check], "Total documents": len(evidence_index)})
+            coverage["Missing"] = coverage["Total documents"] - coverage["Records populated"]
+            st.markdown("**Missing-data coverage**")
+            st.dataframe(coverage, use_container_width=True, hide_index=True)
 
-        source_values = sorted(evidence_index["source_type"].dropna().unique())
-        agency_values = sorted(evidence_index["agency"].dropna().unique())
-        category_values = sorted(evidence_index["intervention_category"].replace("", "Not classified").unique())
-        selected_sources = st.multiselect("Filter source type", source_values, default=source_values, key="ev_source_filter")
-        selected_agencies = st.multiselect("Filter agency", agency_values, default=agency_values, key="ev_agency_filter")
-        selected_categories = st.multiselect("Filter category", category_values, default=category_values, key="ev_category_filter")
-        search = st.text_input("Search evidence ID, reference, title, location, or department", key="ev_search").strip().casefold()
-        view = evidence_index[
-            evidence_index["source_type"].isin(selected_sources)
-            & evidence_index["agency"].isin(selected_agencies)
-            & evidence_index["intervention_category"].replace("", "Not classified").isin(selected_categories)
-        ].copy()
-        if search:
-            search_fields = ["evidence_id", "source_record_id", "tender_reference", "project_title", "exact_source_title", "location_as_published", "department"]
-            mask = view[search_fields].astype(str).apply(lambda col: col.str.casefold().str.contains(search, regex=False)).any(axis=1)
-            view = view[mask]
-        table_fields = ["evidence_id", "project_id", "associated_evidence_ids", "source_type", "project_title", "exact_source_title", "agency", "department", "intervention_category", "location_as_published", "tender_reference", "project_status_as_published", "status_normalized", "publication_date_as_published", "award_date_as_published", "reported_value_original_text", "actual_expenditure_as_published", "currency", "value_unit", "source_value_field_heading", "tax_basis_as_published", "physical_progress_as_published", "ghg_value_as_published", "ghg_unit", "verification_tier", "optimization_eligibility", "optimization_exclusion_reason", "primary_source_url", "source_retrieved_at", "limitations"]
-        st.caption(f"Showing {len(view):,} of {len(evidence_index):,} evidence documents. All records remain contextual evidence only and are excluded from the real-project optimizer until compatible validated inputs and project links exist.")
-        st.dataframe(view[table_fields], use_container_width=True, hide_index=True, height=520, column_config={"primary_source_url": st.column_config.LinkColumn()})
-        st.download_button("Download filtered index with full provenance", view.to_csv(index=False).encode("utf-8"), "carbonwise_filtered_evidence_index.csv", "text/csv")
+            source_values = sorted(evidence_index["source_type"].dropna().unique())
+            agency_values = sorted(evidence_index["agency"].dropna().unique())
+            category_values = sorted(evidence_index["intervention_category"].replace("", "Not classified").unique())
+            selected_sources = st.multiselect("Filter source type", source_values, default=source_values, key="ev_source_filter")
+            selected_agencies = st.multiselect("Filter agency", agency_values, default=agency_values, key="ev_agency_filter")
+            selected_categories = st.multiselect("Filter category", category_values, default=category_values, key="ev_category_filter")
+            search = st.text_input("Search evidence ID, reference, title, location, or department", key="ev_search").strip().casefold()
+            view = evidence_index[
+                evidence_index["source_type"].isin(selected_sources)
+                & evidence_index["agency"].isin(selected_agencies)
+                & evidence_index["intervention_category"].replace("", "Not classified").isin(selected_categories)
+            ].copy()
+            if search:
+                search_fields = ["evidence_id", "source_record_id", "tender_reference", "project_title", "exact_source_title", "location_as_published", "department"]
+                mask = view[search_fields].astype(str).apply(lambda col: col.str.casefold().str.contains(search, regex=False)).any(axis=1)
+                view = view[mask]
+            table_fields = ["evidence_id", "project_id", "associated_evidence_ids", "source_type", "project_title", "exact_source_title", "agency", "department", "intervention_category", "location_as_published", "tender_reference", "project_status_as_published", "status_normalized", "publication_date_as_published", "award_date_as_published", "reported_value_original_text", "actual_expenditure_as_published", "currency", "value_unit", "source_value_field_heading", "tax_basis_as_published", "physical_progress_as_published", "ghg_value_as_published", "ghg_unit", "verification_tier", "optimization_eligibility", "optimization_exclusion_reason", "primary_source_url", "source_retrieved_at", "limitations"]
+            st.caption(f"Showing {len(view):,} of {len(evidence_index):,} evidence documents. All records remain contextual evidence only and are excluded from the real-project optimizer until compatible validated inputs and project links exist.")
+            st.dataframe(view[table_fields], use_container_width=True, hide_index=True, height=520, column_config={"primary_source_url": st.column_config.LinkColumn()})
+            st.download_button("Download filtered index with full provenance", view.to_csv(index=False).encode("utf-8"), "carbonwise_filtered_evidence_index.csv", "text/csv")
 
-        with st.expander(f"Duplicate and cross-source review queue ({len(duplicate_review)} pairs)"):
-            if duplicate_review.empty:
-                st.success("No ambiguous matches are currently flagged. Exact cross-source links remain in the index as separate documents.")
-            else:
-                st.dataframe(duplicate_review, use_container_width=True, hide_index=True)
-            st.download_button("Download duplicate-review queue", duplicate_review.to_csv(index=False).encode("utf-8"), "carbonwise_duplicate_review.csv", "text/csv")
-        with st.expander("Source collection history and access limitations"):
-            st.markdown("**Official source document links for manual follow-up**")
-            document_search = st.text_input("Search bulletin or annual-report links", key="source_doc_search").strip().casefold()
-            source_doc_view = source_documents.copy()
-            if document_search:
-                document_mask = source_doc_view.astype(str).apply(lambda col: col.str.casefold().str.contains(document_search, regex=False)).any(axis=1)
-                source_doc_view = source_doc_view[document_mask]
-            st.dataframe(source_doc_view, use_container_width=True, hide_index=True, height=300, column_config={"document_url": st.column_config.LinkColumn(), "primary_source_page": st.column_config.LinkColumn()})
-            st.dataframe(source_runs.sort_values("retrieved_at_utc", ascending=False), use_container_width=True, hide_index=True)
-            st.caption("Bulletin and annual-report links are source-document inventory, not project evidence rows. Interactive GCC filters and tender PDFs still need item-level manual review/import.")
+            with st.expander(f"Duplicate and cross-source review queue ({len(duplicate_review)} pairs)"):
+                if duplicate_review.empty:
+                    st.success("No ambiguous matches are currently flagged. Exact cross-source links remain in the index as separate documents.")
+                else:
+                    st.dataframe(duplicate_review, use_container_width=True, hide_index=True)
+                st.download_button("Download duplicate-review queue", duplicate_review.to_csv(index=False).encode("utf-8"), "carbonwise_duplicate_review.csv", "text/csv")
+            with st.expander("Source collection history and access limitations"):
+                st.markdown("**Official source document links for manual follow-up**")
+                document_search = st.text_input("Search bulletin or annual-report links", key="source_doc_search").strip().casefold()
+                source_doc_view = source_documents.copy()
+                if document_search:
+                    document_mask = source_doc_view.astype(str).apply(lambda col: col.str.casefold().str.contains(document_search, regex=False)).any(axis=1)
+                    source_doc_view = source_doc_view[document_mask]
+                st.dataframe(source_doc_view, use_container_width=True, hide_index=True, height=300, column_config={"document_url": st.column_config.LinkColumn(), "primary_source_page": st.column_config.LinkColumn()})
+                st.dataframe(source_runs.sort_values("retrieved_at_utc", ascending=False), use_container_width=True, hide_index=True)
+                st.caption("Bulletin and annual-report links are source-document inventory, not project evidence rows. Interactive GCC filters and tender PDFs still need item-level manual review/import.")
+    with tab_sources:
+        with st.expander("Check calculations from the GCC report"):
+            st.markdown('<div class="section-kicker">REPRODUCIBILITY / FIVE PUBLISHED FORMULAS</div><div class="section-heading">Can we reproduce the arithmetic?</div>', unsafe_allow_html=True)
+            st.markdown("The checks below rerun the arithmetic printed by GCC for five annual GHG estimates. A matching number confirms the arithmetic from the report inputs; it does **not** confirm that the vehicles travelled those distances, lights were installed and operated as assumed, or that these reductions were measured in the field.")
+            check_view = checks.rename(columns={"project_id":"Starter ID", "method":"GCC estimate", "formula":"Recalculation", "inputs_and_assumptions":"Inputs and assumptions", "reported_value":"Published result", "recomputed_value":"Reproduced result", "unit":"Unit", "status":"What this check establishes"})
+            st.dataframe(check_view, use_container_width=True, hide_index=True, height=390)
+            st.caption("All five reproduce within normal floating-point precision. Full source pages: R02 p.55; R13 pp.60–61; R16 pp.56–57; R17 pp.57–58; R18 pp.58–60.")
+            st.code("python3 src/verify_gcc_calculations.py", language="bash")
+    with tab_sources:
+        with st.expander("What the records can and cannot show"):
+            st.markdown('<div class="section-kicker">TRANSPARENCY / CAUSAL EVIDENCE</div><div class="section-heading">What can we prove caused a change?</div>', unsafe_allow_html=True)
+            st.markdown(f"""
+            | Evidence class | What this workspace has | How it is shown |
+            |---|---|---|
+            | Supplied source | 23 GCC starter rows, source labels and notes | Retained as supplied |
+            | GCC primary report | Climate Budget action IDs, costs, status, quantities, progress, pages | Confirmed as published by GCC; not independently audited |
+            | Derived arithmetic | Five GHG estimate checks and 5 km / 11.6 km progress ratio | Formula and inputs exposed; real-world activity assumptions remain unverified |
+            | Official award listing | Three matching ADB award entries | Contract values in USD; not expenditure |
+            | CMRL official award listing | {len(cmrl_awards)} tender award-list rows with exact source wording, dates, contractors and published value strings | Procurement records only; no completion, expenditure or measured climate/equity outcomes in the listing |
+            | Unknown | Actual spend, tender physical quantities, live completion, exact locations | Displayed as unknown |
+            | Optimisation inputs | No compatible validated resilience and geographic crosswalk for all records | Real-project ranking is withheld; evidence analysis still runs on source-backed data |
 
-    with tab_checks:
-        st.markdown('<div class="section-kicker">REPRODUCIBILITY / FIVE PUBLISHED FORMULAS</div><div class="section-heading">Can we reproduce the arithmetic?</div>', unsafe_allow_html=True)
-        st.markdown("The checks below rerun the arithmetic printed by GCC for five annual GHG estimates. A matching number confirms the arithmetic from the report inputs; it does **not** confirm that the vehicles travelled those distances, lights were installed and operated as assumed, or that these reductions were measured in the field.")
-        check_view = checks.rename(columns={"project_id":"Starter ID", "method":"GCC estimate", "formula":"Recalculation", "inputs_and_assumptions":"Inputs and assumptions", "reported_value":"Published result", "recomputed_value":"Reproduced result", "unit":"Unit", "status":"What this check establishes"})
-        st.dataframe(check_view, use_container_width=True, hide_index=True, height=390)
-        st.caption("All five reproduce within normal floating-point precision. Full source pages: R02 p.55; R13 pp.60–61; R16 pp.56–57; R17 pp.57–58; R18 pp.58–60.")
-        st.code("python3 src/verify_gcc_calculations.py", language="bash")
+            **Why there is no real-data portfolio ranking yet:** the GCC report supplies real project details and progress, but it does not provide a common project-level resilience score or a validated project-to-zone/population crosswalk for every candidate. A real-data evidence analysis is available now; a ranked multi-objective portfolio would still require assumptions not supplied by the report.
 
-    with tab_method:
-        st.markdown('<div class="section-kicker">TRANSPARENCY / CAUSAL EVIDENCE</div><div class="section-heading">What can we prove caused a change?</div>', unsafe_allow_html=True)
-        st.markdown(f"""
-        | Evidence class | What this workspace has | How it is shown |
-        |---|---|---|
-        | Supplied source | 23 GCC starter rows, source labels and notes | Retained as supplied |
-        | GCC primary report | Climate Budget action IDs, costs, status, quantities, progress, pages | Confirmed as published by GCC; not independently audited |
-        | Derived arithmetic | Five GHG estimate checks and 5 km / 11.6 km progress ratio | Formula and inputs exposed; real-world activity assumptions remain unverified |
-        | Official award listing | Three matching ADB award entries | Contract values in USD; not expenditure |
-        | CMRL official award listing | {len(cmrl_awards)} tender award-list rows with exact source wording, dates, contractors and published value strings | Procurement records only; no completion, expenditure or measured climate/equity outcomes in the listing |
-        | Unknown | Actual spend, tender physical quantities, live completion, exact locations | Displayed as unknown |
-        | Optimisation inputs | No compatible validated resilience and geographic crosswalk for all records | Real-project ranking is withheld; evidence analysis still runs on source-backed data |
+            **Repeat the checks:** from the project root run `python3 src/data_pipeline.py` and `python3 src/verify_gcc_calculations.py`. Dated ingestion outputs are under `data/derived/`; calculation checks are under `results/evidence/`. The original starter remains unchanged; the official GCC report PDF is available from the GCC source link on the evidence page and is kept locally, not in this GitHub repository.
+            """)
+            st.error("Causal result available now: none. The connected records do not establish that a GCC project caused a reduction in flooding, emissions, or harm. Do not present a causal impact number from this prototype.")
+            st.markdown("""
+            **Why the causal result is unavailable:** the ADB project page for the Chennai–Kosasthalaiyar flood-management project lists it as ongoing, with completion targeted for 2027, and currently lists no independent evaluation document. Its 1.9 million residents figure is planned exposure reduction, not an observed post-project result. GCC’s Climate Budget says it is establishing indicators and a system to monitor and evaluate impacts over future years.
 
-        **Why there is no real-data portfolio ranking yet:** the GCC report supplies real project details and progress, but it does not provide a common project-level resilience score or a validated project-to-zone/population crosswalk for every candidate. A real-data evidence analysis is available now; a ranked multi-objective portfolio would still require assumptions not supplied by the report.
+            **What is verified here:** source publication, project descriptions, stated progress and quantities, award records, and arithmetic reproduction of five report estimates. These answer “what was reported or contracted?” They do not answer “what changed because of the project?”
 
-        **Repeat the checks:** from the project root run `python3 src/data_pipeline.py` and `python3 src/verify_gcc_calculations.py`. Dated ingestion outputs are under `data/derived/`; calculation checks are under `results/evidence/`. The original starter remains unchanged; the official GCC report PDF is available from the GCC source link on the evidence page and is kept locally, not in this GitHub repository.
-        """)
-        st.error("Causal result available now: none. The connected records do not establish that a GCC project caused a reduction in flooding, emissions, or harm. Do not present a causal impact number from this prototype.")
-        st.markdown("""
-        **Why the causal result is unavailable:** the ADB project page for the Chennai–Kosasthalaiyar flood-management project lists it as ongoing, with completion targeted for 2027, and currently lists no independent evaluation document. Its 1.9 million residents figure is planned exposure reduction, not an observed post-project result. GCC’s Climate Budget says it is establishing indicators and a system to monitor and evaluate impacts over future years.
+            **What a defensible causal study needs:** (1) exact project footprint and commissioning date; (2) repeated outcome observations before and after, such as flood depth, duration, inundated area, road closures, or service disruption; (3) rainfall and tide/sewer conditions for each event; (4) comparable untreated locations/events; and (5) a pre-specified design, likely matched difference-in-differences/event study or a hydraulic model validated against observed flood data. Spillovers between drainage catchments must be considered. If these inputs cannot be assembled, report descriptive trends only.
 
-        **What is verified here:** source publication, project descriptions, stated progress and quantities, award records, and arithmetic reproduction of five report estimates. These answer “what was reported or contracted?” They do not answer “what changed because of the project?”
+            **Primary-source status:** [ADB project status and evaluation documents](https://www.adb.org/projects/49107-009/main) · [ADB 2021 project design and 1.9m target](https://www.adb.org/projects/documents/ind-49107-009-rrp) · [GCC Climate Budget 2025–26](https://www.chennaicorporation.gov.in/gcc/pdf/ClimateBudget2025-2026.pdf).
+            """)
+            st.caption("Model boundary: the separate scenario lab is a hypothetical benchmark demonstration using generated candidate projects, not real GCC recommendations or a live digital twin.")
+    with tab_sources:
+        with st.expander("Read the project walkthrough"):
+            st.markdown('<div class="section-kicker">A WALKTHROUGH YOU CAN PRESENT</div><div class="section-heading">What each part of CarbonWise does</div>', unsafe_allow_html=True)
+            st.markdown("""
+            **Start here — Evidence Room · GCC records.** This is the source-backed part of the prototype. It starts from the 23 projects in your supplied CSV and links each row to a GCC Climate Budget activity and printed page.
 
-        **What a defensible causal study needs:** (1) exact project footprint and commissioning date; (2) repeated outcome observations before and after, such as flood depth, duration, inundated area, road closures, or service disruption; (3) rainfall and tide/sewer conditions for each event; (4) comparable untreated locations/events; and (5) a pre-specified design, likely matched difference-in-differences/event study or a hydraulic model validated against observed flood data. Spillovers between drainage catchments must be considered. If these inputs cannot be assembled, report descriptive trends only.
+            **Overview.** Department bars count the supplied rows; they are not budget totals. The progress cards show what GCC reports in the 2025–26 Climate Budget: 5 of 11.6 km for Complete Streets, 78% for Villivakkam Tank, 55% for Chinna Nolambur bridge, and 24 CNG vehicles. These are published status claims, not live monitoring. The 43.1% Complete Streets figure is our division 5 ÷ 11.6.
 
-        **Primary-source status:** [ADB project status and evaluation documents](https://www.adb.org/projects/49107-009/main) · [ADB 2021 project design and 1.9m target](https://www.adb.org/projects/documents/ind-49107-009-rrp) · [GCC Climate Budget 2025–26](https://www.chennaicorporation.gov.in/gcc/pdf/ClimateBudget2025-2026.pdf).
-        """)
-        st.caption("Model boundary: the separate scenario lab is a hypothetical benchmark demonstration using generated candidate projects, not real GCC recommendations or a live digital twin.")
+            **GCC project evidence.** Filter by department, inspect all 23 source-linked project rows, then download the filtered crosswalk. The report page, status, quantity, cost and caveat travel together. Click the official GCC source link to open the report PDF.
 
-    with tab_guide:
-        st.markdown('<div class="section-kicker">A WALKTHROUGH YOU CAN PRESENT</div><div class="section-heading">What each part of CarbonWise does</div>', unsafe_allow_html=True)
-        st.markdown("""
-        **Start here — Evidence Room · GCC records.** This is the source-backed part of the prototype. It starts from the 23 projects in your supplied CSV and links each row to a GCC Climate Budget activity and printed page.
+            **Evidence index & audit.** The document count and unique-project count are separate. The app withholds a unique-project number until the GCC starter IDs, CMRL records, and drainage tenders have a reviewed cross-source project map. Search and filter official source documents, inspect missing fields and source status, download provenance with each row, and review possible duplicate references. The optimizer still uses its separate synthetic scenario inputs.
 
-        **Overview.** Department bars count the supplied rows; they are not budget totals. The progress cards show what GCC reports in the 2025–26 Climate Budget: 5 of 11.6 km for Complete Streets, 78% for Villivakkam Tank, 55% for Chinna Nolambur bridge, and 24 CNG vehicles. These are published status claims, not live monitoring. The 43.1% Complete Streets figure is our division 5 ÷ 11.6.
+            **Drainage awards.** This is a procurement cross-check for three tender packages matched to ADB award listings. The amount is a contract award in USD. The app intentionally shows tender estimate and actual expenditure as unknown; an awarded contract is not proof of payment or completion.
 
-        **GCC project evidence.** Filter by department, inspect all 23 source-linked project rows, then download the filtered crosswalk. The report page, status, quantity, cost and caveat travel together. Click the official GCC source link to open the report PDF.
+            **Calculation audit.** Five GCC GHG formulas are recalculated from the report's own inputs. You can show both the matching results and each assumption. Say “the arithmetic reproduces,” not “the emissions reduction was independently verified.”
 
-        **Evidence index & audit.** The document count and unique-project count are separate. The app withholds a unique-project number until the GCC starter IDs, CMRL records, and drainage tenders have a reviewed cross-source project map. Search and filter official source documents, inspect missing fields and source status, download provenance with each row, and review possible duplicate references. The optimizer still uses its separate synthetic scenario inputs.
+            **Causal evidence & methods.** This tab separates published implementation facts from causal effects, checks the official evaluation status, lists the data needed for an actual impact study, and gives commands to rerun the source pipeline and calculation check.
 
-        **Drainage awards.** This is a procurement cross-check for three tender packages matched to ADB award listings. The amount is a contract award in USD. The app intentionally shows tender estimate and actual expenditure as unknown; an awarded contract is not proof of payment or completion.
+            **Presenter guide.** This page is the short tour and includes the language to use in a review. A longer speaker script is in `docs/presenter_walkthrough.md`.
 
-        **Calculation audit.** Five GCC GHG formulas are recalculated from the report's own inputs. You can show both the matching results and each assumption. Say “the arithmetic reproduces,” not “the emissions reduction was independently verified.”
+            **Scenario Lab · synthetic model.** Choose it from the sidebar. Set a budget and how strongly the community-score inputs should count, explore the 15 area records and 56 generated example projects, then select **Compare investment plans**. Its scores, plan comparisons and distribution checks use generated data. They are not actual GCC recommendations or measured Chennai outcomes. Downloaded reports carry the same limitation.
 
-        **Causal evidence & methods.** This tab separates published implementation facts from causal effects, checks the official evaluation status, lists the data needed for an actual impact study, and gives commands to rerun the source pipeline and calculation check.
+            **Best one-sentence description:** “CarbonWise is a prototype with a source-backed GCC evidence register and tender cross-check, plus a separate synthetic multi-objective optimizer demonstrating how carbon, resilience and equity trade-offs could be explored once comparable, verified project inputs are available.”
 
-        **Presenter guide.** This page is the short tour and includes the language to use in a review. A longer speaker script is in `docs/presenter_walkthrough.md`.
-
-        **Scenario Lab · synthetic model.** Choose it from the sidebar. Set a budget and how strongly the community-score inputs should count, explore the 15 area records and 56 generated example projects, then select **Compare investment plans**. Its scores, plan comparisons and distribution checks use generated data. They are not actual GCC recommendations or measured Chennai outcomes. Downloaded reports carry the same limitation.
-
-        **Best one-sentence description:** “CarbonWise is a prototype with a source-backed GCC evidence register and tender cross-check, plus a separate synthetic multi-objective optimizer demonstrating how carbon, resilience and equity trade-offs could be explored once comparable, verified project inputs are available.”
-
-        **Two-minute review script:** “I began with the 23 project records in the supplied GCC starter file. I matched each one to the Greater Chennai Corporation’s 2025–26 Climate Budget and show the report page, reported status, physical quantities, cost and caveats so a reviewer can trace a claim back to its source. The report gives useful delivery evidence—for example, GCC reports 5 km complete out of 11.6 km of Complete Streets, and 78% progress for Villivakkam Tank. I also reproduced five published GHG calculations directly from the report inputs; that validates arithmetic, not the underlying activity data or realised emissions. Separately, three drainage tender references match ADB award records. Contract values are shown as awards, while actual expenditure and physical completion remain unknown. The optimizer is a separate synthetic demonstration, so I do not present its scores as real Chennai recommendations. The main next evidence needed for a real ranking is project-level payment and completion records, measured outcomes, and a verified location/population crosswalk.”
-        """)
-
+            **Two-minute review script:** “I began with the 23 project records in the supplied GCC starter file. I matched each one to the Greater Chennai Corporation’s 2025–26 Climate Budget and show the report page, reported status, physical quantities, cost and caveats so a reviewer can trace a claim back to its source. The report gives useful delivery evidence—for example, GCC reports 5 km complete out of 11.6 km of Complete Streets, and 78% progress for Villivakkam Tank. I also reproduced five published GHG calculations directly from the report inputs; that validates arithmetic, not the underlying activity data or realised emissions. Separately, three drainage tender references match ADB award records. Contract values are shown as awards, while actual expenditure and physical completion remain unknown. The optimizer is a separate synthetic demonstration, so I do not present its scores as real Chennai recommendations. The main next evidence needed for a real ranking is project-level payment and completion records, measured outcomes, and a verified location/population crosswalk.”
+            """)
 # ---------------------------------------------------------------------------
 # Page config + restrained, professional styling (no gradients, no emoji soup)
 # ---------------------------------------------------------------------------
 st.set_page_config(page_title="CarbonWise", layout="wide",
                     initial_sidebar_state="expanded", page_icon="◆")
 
+APP_OPTIONS = ["Start here", "Analyze my data", "Try a sample plan", "Explore official evidence"]
+if "cw_app_mode" not in st.session_state:
+    st.session_state["cw_app_mode"] = APP_OPTIONS[0]
+
+
+def _go_to_page(page):
+    st.session_state["cw_app_mode"] = page
+
+
+def render_start_page():
+    st.markdown("""
+    <style>
+      .cw-start { background:#f1f5ef; border:1px solid #dfe7dc; border-radius:18px; padding:32px 34px; margin:10px 0 22px; }
+      .cw-start-kicker { color:#607b4b; font:600 11px Inter,system-ui,sans-serif; letter-spacing:1px; text-transform:uppercase; }
+      .cw-start h1 { color:#19372b; font:700 clamp(32px,4vw,48px) Inter,system-ui,sans-serif; letter-spacing:-1.5px; margin:12px 0; }
+      .cw-start p { color:#52665a; font-size:15px; line-height:1.6; max-width:790px; margin:0; }
+      .cw-choice { height:100%; border:1px solid #e1e7df; border-radius:12px; padding:18px; background:#fff; }
+      .cw-choice h3 { color:#1d382d; font-size:18px; margin:0 0 8px; }
+      .cw-choice p { color:#68786e; min-height:55px; font-size:13px; line-height:1.55; margin:0 0 12px; }
+      @media(max-width:700px){.cw-start{padding:24px 20px}.cw-start p{font-size:13px}.cw-choice p{min-height:0}}
+    </style>
+    <div class="cw-start">
+      <div class="cw-start-kicker">Chennai · climate investment planning</div>
+      <h1>Plan climate investments with clear evidence.</h1>
+      <p>CarbonWise helps compare project costs and expected benefits under a limited budget, while keeping community needs in view. Start with your own project file, explore a clearly labelled example, or review published city records.</p>
+    </div>
+    """, unsafe_allow_html=True)
+    st.markdown("#### What would you like to do?")
+    c1, c2, c3 = st.columns(3, gap="medium")
+    with c1:
+        st.markdown('<div class="cw-choice"><h3>Use my project data</h3><p>Upload a CSV or Excel file. Review its values, set a budget, and compare possible plans.</p></div>', unsafe_allow_html=True)
+        st.button("Analyze my data", type="primary", use_container_width=True, on_click=_go_to_page, args=("Analyze my data",))
+    with c2:
+        st.markdown('<div class="cw-choice"><h3>Try a sample plan</h3><p>Explore the planner with generated examples. Sample projects are not real proposals or measured outcomes.</p></div>', unsafe_allow_html=True)
+        st.button("Explore sample plan", use_container_width=True, on_click=_go_to_page, args=("Try a sample plan",))
+    with c3:
+        st.markdown('<div class="cw-choice"><h3>See official records</h3><p>Review GCC report statements and procurement records, with sources and important unknowns shown.</p></div>', unsafe_allow_html=True)
+        st.button("Explore official evidence", use_container_width=True, on_click=_go_to_page, args=("Explore official evidence",))
+    st.caption("Estimates, published statements, sample values, and user-provided data are labelled separately. CarbonWise does not treat a model result as a confirmed real-world outcome.")
+
 app_mode = st.sidebar.radio(
-    "Choose a workspace",
-    ["Evidence Room · GCC records", "Live Studio · your data", "Scenario Lab · synthetic model"],
-    index=0,
-    help="Evidence Room lets you trace source-backed records. Live Studio analyzes a dataset you provide. Scenario Lab is a practice run with generated example projects.",
+    "Where would you like to start?",
+    APP_OPTIONS,
+    key="cw_app_mode",
+    help="Use your own file, explore a generated example, or review records published by city agencies.",
 )
-if app_mode == "Evidence Room · GCC records":
+if app_mode == "Start here":
+    render_start_page()
+    st.stop()
+if app_mode == "Explore official evidence":
     render_evidence_room()
     st.stop()
-if app_mode == "Live Studio · your data":
+if app_mode == "Analyze my data":
     render_user_data_studio()
     st.stop()
 
@@ -425,34 +462,35 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 st.markdown(f"""
-<div class="cw-title">CarbonWise</div>
-<div class="cw-subtitle">Explore how infrastructure investment choices can balance carbon, resilience, and community priorities. This practice workspace uses generated Chennai-style examples.</div>
+<div class="cw-title">Try a sample plan</div>
+<div class="cw-subtitle">Use generated practice projects to see how a budget and priorities change a possible plan.</div>
 <hr class="cw-rule"/>
 """, unsafe_allow_html=True)
-st.info("Practice data: the projects and estimated benefits in this workspace are generated examples, not verified GCC project recommendations or measured Chennai outcomes. Use **Evidence Room · GCC records** for sourced records or **Live Studio · your data** to analyze a file you provide.")
+st.info("Sample data only: these generated examples are not actual project proposals or measured Chennai outcomes. To use your own data, select **Analyze my data**. To browse sourced statements, select **Explore official evidence**.")
 
 # ---------------------------------------------------------------------------
 # Sidebar
 # ---------------------------------------------------------------------------
-st.sidebar.markdown("### Plan settings")
+st.sidebar.markdown("### Set up your sample plan")
 budget_cr = st.sidebar.number_input("Available budget (₹ crore)", min_value=5.0,
                                      max_value=500.0, value=50.0, step=5.0,
                                      help="A planning limit applied to the generated example projects. It is not an actual city allocation.")
 
-st.sidebar.markdown("**Community benefit score priorities**")
-st.sidebar.caption("Adjust how three inputs contribute to the project-level composite score. This score is a planning proxy, not proof of real-world impact.")
-w1 = st.sidebar.slider("Community vulnerability indicator", 0.0, 1.0, 0.33,
+st.sidebar.markdown("**How should community need be counted?**")
+st.sidebar.caption("These priorities affect the sample score only; they do not prove real-world benefits.")
+w1 = st.sidebar.slider("Community vulnerability", 0.0, 1.0, 0.33,
                        help="Weights the zone-level vulnerability indicator used in the project score.")
-w2 = st.sidebar.slider("Population a project may serve", 0.0, 1.0, 0.33,
+w2 = st.sidebar.slider("People a project may serve", 0.0, 1.0, 0.33,
                        help="Weights the modelled share of the zone population listed as benefiting.")
-w3 = st.sidebar.slider("Infrastructure service-gap indicator", 0.0, 1.0, 0.34,
+w3 = st.sidebar.slider("Infrastructure service gap", 0.0, 1.0, 0.34,
                        help="Weights the zone-level infrastructure-deprivation indicator.")
 total_w = w1 + w2 + w3
 w1, w2, w3 = (w1/total_w, w2/total_w, w3/total_w) if total_w else (1/3, 1/3, 1/3)
 
-run_button = st.sidebar.button("Compare investment plans", type="primary", use_container_width=True,
+run_button = st.sidebar.button("Build sample plan", type="primary", use_container_width=True,
                                help="Builds one set of feasible plans using the generated example project table.")
-run_sensitivity_btn = st.sidebar.checkbox("Also test 5 budget levels (takes longer)", value=False)
+with st.sidebar.expander("More options"):
+    run_sensitivity_btn = st.checkbox("Compare 5 budget levels (slower)", value=False)
 
 st.sidebar.markdown("---")
 st.sidebar.markdown("**Data sources**")
@@ -500,7 +538,7 @@ for i, (_, row) in enumerate(_cat_summary.iterrows()):
 
 st.markdown("---")
 
-tab_map, tab_data, tab_results = st.tabs(["Explore areas", "Browse example projects", "Compare plans"])
+tab_map, tab_data, tab_results = st.tabs(["Areas", "Example projects", "Your sample plan"])
 
 # ---------------------------------------------------------------------------
 # Data validation report (sidebar) -- shown before any optimization runs,
@@ -527,8 +565,8 @@ with st.sidebar.expander(
 # TAB 1: Zone map / profile
 # ---------------------------------------------------------------------------
 with tab_map:
-    st.markdown("#### Planning-area overview")
-    st.caption("Compare the zone indicators included in this sample. They describe source measures used by the demo, not a complete assessment of community needs.")
+    st.markdown("#### Sample data by area")
+    st.caption("Explore the 15 sample areas. Indicators come from cited sources, but the projects and resulting plan are generated examples.")
     col_map, col_detail = st.columns([2, 1])
 
     with col_map:
@@ -580,7 +618,7 @@ with tab_map:
 # TAB 2: Candidate projects table
 # ---------------------------------------------------------------------------
 with tab_data:
-    st.markdown("#### Browse the practice project list")
+    st.markdown("#### Browse generated example projects")
     st.caption("These are generated candidates with benchmark-based inputs. Their presence does not mean they have been proposed, funded, or completed.")
     fig_cat = go.Figure(go.Bar(
         x=_cat_summary["total_cost"], y=_cat_summary["category"],
@@ -615,7 +653,7 @@ with tab_data:
 # ---------------------------------------------------------------------------
 with tab_results:
     if not run_button:
-        st.info("Set the budget and community-score priorities in the sidebar, then select **Compare investment plans**.")
+        st.info("Set a budget and community priorities in the sidebar, then choose **Build sample plan**.")
     else:
         with st.spinner("Comparing feasible investment plans…"):
             res, problem = run_nsga2(df, budget_cr)
@@ -650,175 +688,174 @@ with tab_results:
                           f'<div class="cw-tile-value">{val}</div>'
                           f'<div class="cw-tile-context">{ctx}</div></div>', unsafe_allow_html=True)
 
-        st.markdown("---")
+        with st.expander("See comparisons, rationale, and fairness checks"):
+            # --- Why this portfolio: structured decision rationale ---
+            st.markdown("#### Why was this plan selected?")
+            rationale = build_rationale(front_df, balanced, budget_cr, audit)
+            for i, point in enumerate(rationale, 1):
+                st.markdown(f'<div class="cw-finding"><b>{i}. {point["title"]}.</b> {point["detail"]}</div>',
+                             unsafe_allow_html=True)
 
-        # --- Why this portfolio: structured decision rationale ---
-        st.markdown("#### Why was this plan selected?")
-        rationale = build_rationale(front_df, balanced, budget_cr, audit)
-        for i, point in enumerate(rationale, 1):
-            st.markdown(f'<div class="cw-finding"><b>{i}. {point["title"]}.</b> {point["detail"]}</div>',
-                         unsafe_allow_html=True)
-
-        st.markdown("---")
-
-        st.markdown("#### Compare with two simple allocation approaches")
-        fig_comp = go.Figure()
-        for metric, color in zip(["carbon_score", "resilience_score", "equity_score"],
-                                   [FOREST, "#3D6B8C", GOLD]):
-            fig_comp.add_trace(go.Bar(name=metric.replace("_score", "").title(),
-                                       x=comparison["method"], y=comparison[metric], marker_color=color))
-        fig_comp.update_layout(barmode="group", height=360, margin=dict(l=0, r=0, t=10, b=0),
-                                plot_bgcolor="white", legend=dict(orientation="h", y=1.1))
-        st.plotly_chart(fig_comp, use_container_width=True)
-
-        st.markdown("---")
-
-        # --- Scenario simulator ---
-        st.markdown("#### Compare four planning options")
-        st.caption("These options are selected from the same set of feasible plans. Each emphasizes a different modelled benefit; none is a separate forecast.")
-        fig_scen = go.Figure()
-        for metric, color in zip(["carbon_score", "resilience_score", "equity_score"],
-                                   [FOREST, "#3D6B8C", GOLD]):
-            fig_scen.add_trace(go.Bar(name=metric.replace("_score", "").title(),
-                                       x=scenarios_df["scenario"], y=scenarios_df[metric], marker_color=color))
-        fig_scen.update_layout(barmode="group", height=360, margin=dict(l=0, r=0, t=10, b=0),
-                                plot_bgcolor="white", legend=dict(orientation="h", y=1.1))
-        st.plotly_chart(fig_scen, use_container_width=True)
-        st.dataframe(scenarios_df[["scenario", "n_projects", "total_cost_cr",
-                                     "carbon_score", "resilience_score", "equity_score"]].round(1),
-                     use_container_width=True, hide_index=True)
-
-        st.markdown("---")
-
-        # --- Findings + Pareto front ---
-        col_findings, col_pareto = st.columns([1, 1])
-        with col_findings:
-            st.markdown("#### What stands out")
-
-            context = {
-                "budget_cr": budget_cr,
-                "carbon_score": round(balanced["carbon_score"], 0),
-                "resilience_score": round(balanced["resilience_score"], 0),
-                "equity_score": round(balanced["equity_score"], 0),
-                "projects_funded": int(balanced["n_projects"]),
-                "budget_utilised_pct": round(balanced["total_cost_cr"] / budget_cr * 100, 0),
-                "greedy_carbon_score": round(comparison[comparison["method"].str.contains("Greedy")]["carbon_score"].iloc[0], 0),
-                "high_vulnerability_investment_share_pct": round(audit["after"]["actual_share_pct"], 0),
-            }
-            explanation = generate_explanation(context, comparison, budget_cr)
-            st.markdown(f'<div class="cw-finding">{explanation["text"]}</div>', unsafe_allow_html=True)
-            if explanation["source"] == "llm":
-                st.caption("AI-generated explanation based on this model run. Review it against the data and limitations shown here.")
-            elif explanation["error"]:
-                st.caption(f"Note: {explanation['error']}")
-
-            with st.expander("How the plan was reviewed"):
-                for entry in council:
-                    label = entry["agent"]
-                    st.markdown(f'<div class="cw-finding"><b>{label}.</b> {entry["statement"]}</div>',
-                                 unsafe_allow_html=True)
-
-        with col_pareto:
-            st.markdown("#### Plans that balance different goals")
-            st.caption("Each dot is a feasible plan from the model search. Moving across the chart shows trade-offs between carbon and resilience scores; colour shows the composite community score.")
-            fig_pareto = px.scatter(front_df, x="carbon_score", y="resilience_score",
-                                     color="equity_score", color_continuous_scale="Viridis",
-                                     hover_data={"n_projects": True, "total_cost_cr": ":.1f",
-                                                 "carbon_score": ":.0f", "resilience_score": ":.0f",
-                                                 "equity_score": ":.0f"},
-                                     height=380)
-            fig_pareto.add_trace(go.Scatter(
-                x=[balanced["carbon_score"]], y=[balanced["resilience_score"]],
-                mode="markers", marker=dict(symbol="star", size=20, color=DANGER,
-                                             line=dict(color=INK, width=1)),
-                name="Recommended",
-                hovertext=f"RECOMMENDED<br>Projects: {int(balanced['n_projects'])}<br>"
-                          f"Cost: \u20b9{balanced['total_cost_cr']:.1f} cr<br>"
-                          f"Carbon: {balanced['carbon_score']:.0f} | "
-                          f"Resilience: {balanced['resilience_score']:.0f} | "
-                          f"Equity: {balanced['equity_score']:.0f}",
-                hoverinfo="text"))
-            fig_pareto.update_layout(margin=dict(l=0, r=0, t=10, b=0), plot_bgcolor="white")
-            st.plotly_chart(fig_pareto, use_container_width=True)
-            st.caption(f"{len(front_df)} non-dominated solutions found across {len(df)} candidate projects.")
-
-        st.markdown("---")
-
-        # --- Equity Audit ---
-        st.markdown("#### Where the example investment goes")
-        st.caption("Compares the share of modeled investment in zones labelled high vulnerability with a population-share benchmark. This is a distribution check, not proof of fair outcomes.")
-        col_before, col_after = st.columns(2)
-        with col_before:
-            st.markdown(f"""
-            <div class="cw-tile"><div class="cw-tile-label">Greedy (cost-effectiveness only)</div>
-                <div class="cw-tile-value" style="color:{DANGER}">{audit['before']['actual_share_pct']:.0f}%</div>
-                <div class="cw-tile-context">of investment to high-vulnerability zones
-                (target: {audit['target_share_pct']:.0f}%, gap {audit['before']['gap_pct_points']:.0f} pts)</div>
-            </div>""", unsafe_allow_html=True)
-        with col_after:
-            st.markdown(f"""
-            <div class="cw-tile"><div class="cw-tile-label">CarbonWise</div>
-                <div class="cw-tile-value" style="color:{FOREST}">{audit['after']['actual_share_pct']:.0f}%</div>
-                <div class="cw-tile-context">of investment to high-vulnerability zones
-                (target: {audit['target_share_pct']:.0f}%, gap {audit['after']['gap_pct_points']:+.0f} pts)</div>
-            </div>""", unsafe_allow_html=True)
-
-        if audit["before"]["gap_pct_points"] < -5:
-            st.markdown(f"""
-            <div class="cw-callout">
-                <b>Distributive shortfall detected.</b> Cost-effectiveness-only allocation directs
-                {audit['before']['actual_share_pct']:.0f}% of investment to zones holding
-                {audit['target_share_pct']:.0f}% of Chennai's high-vulnerability population — a
-                {abs(audit['before']['gap_pct_points']):.0f}-point shortfall, consistent with the
-                underinvestment pattern documented empirically in Nandhini et al. (2025).
-                CarbonWise's recommended portfolio corrects this to
-                {audit['after']['actual_share_pct']:.0f}% ({audit['improvement_pct_points']:+.0f} points)
-                by encoding equity as an explicit optimisation objective.
-            </div>
-            """, unsafe_allow_html=True)
-        else:
-            st.markdown(f"""
-            <div class="cw-callout">
-                <b>Honest reading of this result.</b> At this budget, both methods currently meet
-                or exceed the population-proportional target ({audit['target_share_pct']:.0f}%).
-                CarbonWise does not claim to always outperform Greedy on this specific
-                investment-share metric — its measured advantage here is in resilience and the
-                weighted equity score (above). CarbonWise's contribution is that equity is encoded
-                as an explicit, auditable optimisation objective and independently audited on every
-                run, rather than assumed.
-            </div>
-            """, unsafe_allow_html=True)
-
-        st.markdown("---")
-
-        # --- Sensitivity analysis (optional, slower) ---
-        if run_sensitivity_btn:
-            st.markdown("#### Budget sensitivity")
-            st.caption("How outcomes and marginal returns change as available budget scales — "
-                       "useful for a finance department deciding whether additional budget is worth requesting.")
-            with st.spinner("Running optimizer across 5 budget levels (~10-15s)..."):
-                levels = sorted(set([max(10, budget_cr * f) for f in [0.4, 0.7, 1.0, 1.5, 2.0]]))
-                sens_df = run_sensitivity(df, levels, pop_size=80, n_gen=100)
-
-            fig_sens = go.Figure()
-            for metric, color in zip(["carbon_score", "resilience_score", "equity_score"],
-                                       [FOREST, "#3D6B8C", GOLD]):
-                fig_sens.add_trace(go.Scatter(x=sens_df["budget_cr"], y=sens_df[metric],
-                                                mode="lines+markers", name=metric.replace("_score","").title(),
-                                                line=dict(color=color, width=2)))
-            fig_sens.update_layout(height=360, margin=dict(l=0, r=0, t=10, b=0), plot_bgcolor="white",
-                                    xaxis_title="Budget (₹ crore)", yaxis_title="Score",
-                                    legend=dict(orientation="h", y=1.1))
-            st.plotly_chart(fig_sens, use_container_width=True)
-
-            sens_df["marginal_carbon_per_cr"] = sens_df["carbon_score"].diff() / sens_df["budget_cr"].diff()
-            st.dataframe(sens_df.round(2), use_container_width=True, hide_index=True)
-            st.caption("Marginal carbon score gained per additional ₹1 crore — a declining trend indicates "
-                       "diminishing returns on further budget increases.")
             st.markdown("---")
 
+            st.markdown("#### Compare with two simple allocation approaches")
+            fig_comp = go.Figure()
+            for metric, color in zip(["carbon_score", "resilience_score", "equity_score"],
+                                       [FOREST, "#3D6B8C", GOLD]):
+                fig_comp.add_trace(go.Bar(name=metric.replace("_score", "").title(),
+                                           x=comparison["method"], y=comparison[metric], marker_color=color))
+            fig_comp.update_layout(barmode="group", height=360, margin=dict(l=0, r=0, t=10, b=0),
+                                    plot_bgcolor="white", legend=dict(orientation="h", y=1.1))
+            st.plotly_chart(fig_comp, use_container_width=True)
+
+            st.markdown("---")
+
+            # --- Scenario simulator ---
+            st.markdown("#### Compare four planning options")
+            st.caption("These options are selected from the same set of feasible plans. Each emphasizes a different modelled benefit; none is a separate forecast.")
+            fig_scen = go.Figure()
+            for metric, color in zip(["carbon_score", "resilience_score", "equity_score"],
+                                       [FOREST, "#3D6B8C", GOLD]):
+                fig_scen.add_trace(go.Bar(name=metric.replace("_score", "").title(),
+                                           x=scenarios_df["scenario"], y=scenarios_df[metric], marker_color=color))
+            fig_scen.update_layout(barmode="group", height=360, margin=dict(l=0, r=0, t=10, b=0),
+                                    plot_bgcolor="white", legend=dict(orientation="h", y=1.1))
+            st.plotly_chart(fig_scen, use_container_width=True)
+            st.dataframe(scenarios_df[["scenario", "n_projects", "total_cost_cr",
+                                         "carbon_score", "resilience_score", "equity_score"]].round(1),
+                         use_container_width=True, hide_index=True)
+
+            st.markdown("---")
+
+            # --- Findings + Pareto front ---
+            col_findings, col_pareto = st.columns([1, 1])
+            with col_findings:
+                st.markdown("#### What stands out")
+
+                context = {
+                    "budget_cr": budget_cr,
+                    "carbon_score": round(balanced["carbon_score"], 0),
+                    "resilience_score": round(balanced["resilience_score"], 0),
+                    "equity_score": round(balanced["equity_score"], 0),
+                    "projects_funded": int(balanced["n_projects"]),
+                    "budget_utilised_pct": round(balanced["total_cost_cr"] / budget_cr * 100, 0),
+                    "greedy_carbon_score": round(comparison[comparison["method"].str.contains("Greedy")]["carbon_score"].iloc[0], 0),
+                    "high_vulnerability_investment_share_pct": round(audit["after"]["actual_share_pct"], 0),
+                }
+                explanation = generate_explanation(context, comparison, budget_cr)
+                st.markdown(f'<div class="cw-finding">{explanation["text"]}</div>', unsafe_allow_html=True)
+                if explanation["source"] == "llm":
+                    st.caption("AI-generated explanation based on this model run. Review it against the data and limitations shown here.")
+                elif explanation["error"]:
+                    st.caption(f"Note: {explanation['error']}")
+
+                with st.expander("How the plan was reviewed"):
+                    for entry in council:
+                        label = entry["agent"]
+                        st.markdown(f'<div class="cw-finding"><b>{label}.</b> {entry["statement"]}</div>',
+                                     unsafe_allow_html=True)
+
+            with col_pareto:
+                st.markdown("#### Plans that balance different goals")
+                st.caption("Each dot is a feasible plan from the model search. Moving across the chart shows trade-offs between carbon and resilience scores; colour shows the composite community score.")
+                fig_pareto = px.scatter(front_df, x="carbon_score", y="resilience_score",
+                                         color="equity_score", color_continuous_scale="Viridis",
+                                         hover_data={"n_projects": True, "total_cost_cr": ":.1f",
+                                                     "carbon_score": ":.0f", "resilience_score": ":.0f",
+                                                     "equity_score": ":.0f"},
+                                         height=380)
+                fig_pareto.add_trace(go.Scatter(
+                    x=[balanced["carbon_score"]], y=[balanced["resilience_score"]],
+                    mode="markers", marker=dict(symbol="star", size=20, color=DANGER,
+                                                 line=dict(color=INK, width=1)),
+                    name="Recommended",
+                    hovertext=f"RECOMMENDED<br>Projects: {int(balanced['n_projects'])}<br>"
+                              f"Cost: \u20b9{balanced['total_cost_cr']:.1f} cr<br>"
+                              f"Carbon: {balanced['carbon_score']:.0f} | "
+                              f"Resilience: {balanced['resilience_score']:.0f} | "
+                              f"Equity: {balanced['equity_score']:.0f}",
+                    hoverinfo="text"))
+                fig_pareto.update_layout(margin=dict(l=0, r=0, t=10, b=0), plot_bgcolor="white")
+                st.plotly_chart(fig_pareto, use_container_width=True)
+                st.caption(f"{len(front_df)} non-dominated solutions found across {len(df)} candidate projects.")
+
+            st.markdown("---")
+
+            # --- Equity Audit ---
+            st.markdown("#### Where the example investment goes")
+            st.caption("Compares the share of modeled investment in zones labelled high vulnerability with a population-share benchmark. This is a distribution check, not proof of fair outcomes.")
+            col_before, col_after = st.columns(2)
+            with col_before:
+                st.markdown(f"""
+                <div class="cw-tile"><div class="cw-tile-label">Greedy (cost-effectiveness only)</div>
+                    <div class="cw-tile-value" style="color:{DANGER}">{audit['before']['actual_share_pct']:.0f}%</div>
+                    <div class="cw-tile-context">of investment to high-vulnerability zones
+                    (target: {audit['target_share_pct']:.0f}%, gap {audit['before']['gap_pct_points']:.0f} pts)</div>
+                </div>""", unsafe_allow_html=True)
+            with col_after:
+                st.markdown(f"""
+                <div class="cw-tile"><div class="cw-tile-label">CarbonWise</div>
+                    <div class="cw-tile-value" style="color:{FOREST}">{audit['after']['actual_share_pct']:.0f}%</div>
+                    <div class="cw-tile-context">of investment to high-vulnerability zones
+                    (target: {audit['target_share_pct']:.0f}%, gap {audit['after']['gap_pct_points']:+.0f} pts)</div>
+                </div>""", unsafe_allow_html=True)
+
+            if audit["before"]["gap_pct_points"] < -5:
+                st.markdown(f"""
+                <div class="cw-callout">
+                    <b>Distributive shortfall detected.</b> Cost-effectiveness-only allocation directs
+                    {audit['before']['actual_share_pct']:.0f}% of investment to zones holding
+                    {audit['target_share_pct']:.0f}% of Chennai's high-vulnerability population — a
+                    {abs(audit['before']['gap_pct_points']):.0f}-point shortfall, consistent with the
+                    underinvestment pattern documented empirically in Nandhini et al. (2025).
+                    CarbonWise's recommended portfolio corrects this to
+                    {audit['after']['actual_share_pct']:.0f}% ({audit['improvement_pct_points']:+.0f} points)
+                    by encoding equity as an explicit optimisation objective.
+                </div>
+                """, unsafe_allow_html=True)
+            else:
+                st.markdown(f"""
+                <div class="cw-callout">
+                    <b>Honest reading of this result.</b> At this budget, both methods currently meet
+                    or exceed the population-proportional target ({audit['target_share_pct']:.0f}%).
+                    CarbonWise does not claim to always outperform Greedy on this specific
+                    investment-share metric — its measured advantage here is in resilience and the
+                    weighted equity score (above). CarbonWise's contribution is that equity is encoded
+                    as an explicit, auditable optimisation objective and independently audited on every
+                    run, rather than assumed.
+                </div>
+                """, unsafe_allow_html=True)
+
+            st.markdown("---")
+
+            # --- Sensitivity analysis (optional, slower) ---
+            if run_sensitivity_btn:
+                st.markdown("#### Budget sensitivity")
+                st.caption("How outcomes and marginal returns change as available budget scales — "
+                           "useful for a finance department deciding whether additional budget is worth requesting.")
+                with st.spinner("Running optimizer across 5 budget levels (~10-15s)..."):
+                    levels = sorted(set([max(10, budget_cr * f) for f in [0.4, 0.7, 1.0, 1.5, 2.0]]))
+                    sens_df = run_sensitivity(df, levels, pop_size=80, n_gen=100)
+
+                fig_sens = go.Figure()
+                for metric, color in zip(["carbon_score", "resilience_score", "equity_score"],
+                                           [FOREST, "#3D6B8C", GOLD]):
+                    fig_sens.add_trace(go.Scatter(x=sens_df["budget_cr"], y=sens_df[metric],
+                                                    mode="lines+markers", name=metric.replace("_score","").title(),
+                                                    line=dict(color=color, width=2)))
+                fig_sens.update_layout(height=360, margin=dict(l=0, r=0, t=10, b=0), plot_bgcolor="white",
+                                        xaxis_title="Budget (₹ crore)", yaxis_title="Score",
+                                        legend=dict(orientation="h", y=1.1))
+                st.plotly_chart(fig_sens, use_container_width=True)
+
+                sens_df["marginal_carbon_per_cr"] = sens_df["carbon_score"].diff() / sens_df["budget_cr"].diff()
+                st.dataframe(sens_df.round(2), use_container_width=True, hide_index=True)
+                st.caption("Marginal carbon score gained per additional ₹1 crore — a declining trend indicates "
+                           "diminishing returns on further budget increases.")
+                st.markdown("---")
+
         # --- Recommended portfolio + export ---
-        st.markdown("#### Recommended portfolio")
+        st.markdown("#### Projects in this sample plan")
         recommended = df[df["project_id"].isin(cw_ids)][
             ["project_id", "project_name", "category", "zone_name", "cost_cr_inr",
              "carbon_score_raw", "resilience_score_raw", "equity_score"]
